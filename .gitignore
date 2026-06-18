@@ -1,0 +1,30 @@
+# --- Python ---
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Environment / secrets ---
+.env
+.env.local
+.env.*.local
+*.key
+
+# --- Logs / temp ---
+*.log
+.DS_Store
+Thumbs.db
+
+# --- Editor / IDE ---
+.vscode/
+.idea/
+
+# --- Node / frontend (added later) ---
+node_modules/
+.next/
+dist/
+build/

@@ -1,0 +1,24 @@
+# --- PDF parsing API client + notebook ---
+requests
+ipykernel
+
+# --- Gemini markdown pipeline (to be swapped for Qwen/DashScope) ---
+python-dotenv
+google-genai
+
+# --- Local PDF inspection / ingestion ---
+pdfplumber
+PyMuPDF
+
+# --- Agent (LangGraph + LangChain) ---
+rapidfuzz                       # fuzzy section-header matching in read_financials
+langchain
+langgraph
+langgraph-checkpoint-postgres
+psycopg[binary]                 # async Postgres checkpointer driver (binary build for Windows)
+langchain-google-genai
+
+# --- API + frontend ---
+fastapi
+uvicorn
+pydantic
