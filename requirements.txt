@@ -17,6 +17,7 @@ langgraph
 langgraph-checkpoint-postgres
 psycopg[binary]                 # async Postgres checkpointer driver (binary build for Windows)
 langchain-google-genai
+langchain-openai                # Qwen via Alibaba Cloud DashScope (OpenAI-compatible endpoint)
 
 # --- API + frontend ---
 fastapi

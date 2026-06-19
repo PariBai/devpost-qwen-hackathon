@@ -14,6 +14,13 @@ __pycache__/
 .env.*.local
 *.key
 
+# --- Databases (not tracked; rebuilt from source) ---
+*.db
+*.db.bak
+*.sqlite
+*.sqlite3
+data/psx.db
+
 # --- Logs / temp ---
 *.log
 .DS_Store
