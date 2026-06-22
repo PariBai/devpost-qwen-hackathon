@@ -1,11 +1,12 @@
 from typing import Dict, Any
-from app.graph.workflows import _create_compliance_workflow
+from app.graph.workflows import _create_psx_workflow
 from app.common.checkpointer import get_memory_checkpointer
 
 _compiled_agents: Dict[str, Any] = {}
 
+# The full PSX due-diligence graph (router -> compliance/finance -> synthesize).
 _WORKFLOW_FACTORIES = {
-    "compliance_agent": _create_compliance_workflow()
+    "psx_agent": _create_psx_workflow()
 }
 
 async def get_compiled_agent(agent_name: str):

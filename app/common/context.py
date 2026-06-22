@@ -16,3 +16,11 @@ class SessionContext:
     thread_id: str
     model: Any
     usage: Optional[Dict[str, Any]] = None
+
+    # Per-agent final answers for the current turn. Each specialist node writes ONLY
+    # its own field (compliance_node -> compliance_output, finance_node -> finance_output),
+    # so parallel writes never touch the same attribute -> no race. The synthesize node
+    # reads whichever are non-empty. Build a fresh SessionContext per request with these
+    # set to "" so they auto-reset every message (no manual clearing needed).
+    compliance_output: str = ""
+    finance_output: str = ""
