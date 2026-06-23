@@ -28,6 +28,7 @@ def _render_history(messages, max_msgs: int = 3) -> str:
     for m in prior:
         role = getattr(m, "type", "")
         content = m.content if isinstance(m.content, str) else str(m.content)
+        #print(f"role: {role}, content: {content}")
         if role == "human" and content.strip():
             lines.append(f"User: {content.strip()}")
         elif role == "ai" and content.strip():
@@ -149,12 +150,15 @@ async def compliance_node(state: SessionState, runtime: Runtime[SessionContext])
     
    
     runtime.context.compliance_output = full_content             # only THIS node writes this field  
-
+   # print("agent messagwes", agent_messages)
     # if agents length is 1, then we can skip synthesize node and go to __end__
     if len(runtime.context.agents) == 1 and runtime.context.agents[0] == "compliance_node":
-        return Command(goto="__end__")
-    return Command(goto="synthesize_node" ,
+        goto = "__end__"
+    else:
+        goto = "synthesize_node"
+    return Command(goto=goto,
                    update={"messages": agent_messages})
+   
 
 
 async def finance_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["synthesize_node", "__end__"]]:
@@ -198,8 +202,11 @@ async def finance_node(state: SessionState, runtime: Runtime[SessionContext]) ->
     runtime.context.finance_output = full_content            # only THIS node writes this field
     # if agents length is 1, then we can skip synthesize node and go to __end__
     if len(runtime.context.agents) == 1 and runtime.context.agents[0] == "finance_node":
-        return Command(goto="__end__")
-    return Command(goto="synthesize_node",
+        goto = "__end__"
+    else:
+        goto = "synthesize_node"        
+
+    return Command(goto=goto,
                    update={"messages": agent_messages})
 
 

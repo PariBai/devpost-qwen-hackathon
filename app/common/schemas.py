@@ -28,6 +28,6 @@ class RouteDecision(BaseModel):
     )
 
     # Short rationale - handy for debugging/tracing why a route was chosen.
-    reason: str = Field(
-        description="One short sentence explaining why these agent(s) were chosen."
-    )
+    # reason: str = Field(
+    #     description="One short sentence explaining why these agent(s) were chosen."
+    # )
