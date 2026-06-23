@@ -1,0 +1,24 @@
+verify which messages are going to each agent incoming messages
+
+correct render history to provide only one last message why two three agent messages
+
+
+make data in finance node available
+
+make cross session conversation
+make both agents thinking visible
+
+
+
+tweak prompt so hat it can give stock advice
+
+finance
+it could fetch companies with growing stock market value as of today and their unit price value tool to finance 
+it could read consildated upcoming growth so that can advice on invest or not
+, currently growing, fetch price , read upcoming,consolidated , read current year and past year finance data
+
+compliance
+it can guide on how to create account on arif habib and a few more a separate markdown reader 
+as a tool to compliance 
+broker with less customer fee
+reviews fetching, margin rate

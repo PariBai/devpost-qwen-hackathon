@@ -125,7 +125,7 @@ async def compliance_node(state: SessionState, runtime: Runtime[SessionContext])
     agent = await get_compliance_agent()
     agent_messages = []
     # callback = UsageMetadataCallbackHandler()
-    print("compliance input messages", compliance_input_messages)
+    # print("compliance input messages", compliance_input_messages)
     async for stream_mode, chunk in agent.astream(
         {"messages": compliance_input_messages},
         stream_mode = ["updates","messages"],
@@ -153,7 +153,7 @@ async def compliance_node(state: SessionState, runtime: Runtime[SessionContext])
     
    
     runtime.context.compliance_output = full_content             # only THIS node writes this field  
-    print("agent messagwes inside compliance_node", agent_messages)
+    # print("agent messagwes inside compliance_node", agent_messages)
     # if agents length is 1, then we can skip synthesize node and go to __end__
     if len(runtime.context.agents) == 1 and runtime.context.agents[0] == "compliance_node":
         goto = "__end__"
@@ -178,7 +178,7 @@ async def finance_node(state: SessionState, runtime: Runtime[SessionContext]) ->
     agent = await get_finance_agent()
     agent_messages = []
     # callback = UsageMetadataCallbackHandler()
-    print("finance input messages", finance_input_messages)
+   # print("finance input messages", finance_input_messages)
     async for stream_mode, chunk in agent.astream(
         {"messages": finance_input_messages},
         stream_mode = ["updates","messages"],
@@ -205,7 +205,7 @@ async def finance_node(state: SessionState, runtime: Runtime[SessionContext]) ->
                             agent_messages.append(msg)
 
     runtime.context.finance_output = full_content            # only THIS node writes this field
-    print("agent messagwes inside finance_node", agent_messages)
+    # print("agent messagwes inside finance_node", agent_messages)
     # if agents length is 1, then we can skip synthesize node and go to __end__
     if len(runtime.context.agents) == 1 and runtime.context.agents[0] == "finance_node":
         goto = "__end__"
