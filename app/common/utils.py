@@ -124,27 +124,30 @@ def trim_messages(state):
 
 
 def filter_agent_messages(messages: List, blocked_tools: Set[str]) -> List:
-    # Collect all IDs of AI messages that need blocking
-    blocked_ids = set()
     output_messages = []
+    blocked_call_ids = set()
+
     for m in messages:
         if isinstance(m, AIMessage):
-            # Check if content exists and is a list
-            if m.content and isinstance(m.content, list):
-                for c in m.content:
-                    # Check if it's a function_call and the name is in blocked_tools
-                    if c.get("type") == "function_call" and c.get("name") in blocked_tools:
-                        blocked_ids.add(c.get("call_id"))
-                        continue
-                    else:
-                        output_messages.append(m)
-        elif isinstance(m, ToolMessage):
-            if m.name in blocked_tools:
-                blocked_ids.add(m.tool_call_id)
+            tool_calls = m.tool_calls or []
+            blocked_here = [tc for tc in tool_calls if tc.get("name") in blocked_tools]
+
+            if blocked_here:
+                blocked_call_ids.update(tc.get("id") for tc in blocked_here)
+
+            # If every tool call on this AIMessage is blocked, drop the whole message
+            # (it's just a request to call a tool the other agent shouldn't see).
+            if tool_calls and len(blocked_here) == len(tool_calls):
                 continue
-            else:
-                output_messages.append(m)
+
+            output_messages.append(m)
+
+        elif isinstance(m, ToolMessage):
+            if m.name in blocked_tools or m.tool_call_id in blocked_call_ids:
+                continue
+            output_messages.append(m)
+
         elif isinstance(m, HumanMessage):
             output_messages.append(m)
-    #print("output_messagres", output_messages)
+
     return output_messages
