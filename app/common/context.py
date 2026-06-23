@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Dict, Any, list
+from typing import Optional, Dict, Any, List
 # NOTE: `model` is injected at runtime (see app/common/utils.py::_get_model) and
 # read by the dynamic_model middleware in each agent. It is typed as Any so this
 # module stays provider-agnostic -- we will swap Gemini -> Qwen/DashScope later
@@ -15,7 +15,7 @@ class SessionContext:
     thread_id: str
     model: Any
     usage: Optional[Dict[str, Any]] = None
-    agents : list = None  # List of agents invoked for this session (for tracing/debugging)
+    agents : List[str] = None  # List of agents invoked for this session (for tracing/debugging)
 
     # Per-agent final answers for the current turn. Each specialist node writes ONLY
     # its own field (compliance_node -> compliance_output, finance_node -> finance_output),

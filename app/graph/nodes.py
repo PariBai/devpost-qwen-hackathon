@@ -110,6 +110,7 @@ async def compliance_node(state: SessionState, runtime: Runtime[SessionContext])
     """Run the PSX compliance agent (SQL over psx.db). Streams its text as 'compliance_chunk'
     and stores the full answer on the context for the synthesize node."""
     writer = get_stream_writer()
+    full_content = ""
     BLOCKED_TOOLS = {
     "list_financials",
     "read_financials",
@@ -160,6 +161,7 @@ async def finance_node(state: SessionState, runtime: Runtime[SessionContext]) ->
     """Run the PSX finance agent (markdown financial summaries). Streams its text as
     'finance_chunk' and stores the full answer on the context for the synthesize node."""
     writer = get_stream_writer()
+    full_content = ""
     BLOCKED_TOOLS = {
    "run_sql"
     }
