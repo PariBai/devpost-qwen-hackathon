@@ -2,7 +2,7 @@ from typing import Literal
 from langgraph.types import Command
 from langgraph.runtime import Runtime
 from langgraph.config import get_stream_writer
-from langchain_core.messages import AIMessage, SystemMessage, HumanMessage
+from langchain_core.messages import AIMessage, SystemMessage, HumanMessage, ToolMessage
 
 from app.common.state import SessionState
 from app.common.context import SessionContext
@@ -12,13 +12,14 @@ from app.prompts.router import ROUTER_SYSTEM_PROMPT, ROUTER_USER_TEMPLATE
 from app.prompts.synthesize import SYNTHESIZE_SYSTEM_PROMPT, SYNTHESIZE_USER_TEMPLATE
 from app.agents.compliance_agent import get_compliance_agent
 from app.agents.finance_agent import get_finance_agent
-
+from app.common.utils import filter_agent_messages
+# from langchain_core.callbacks import UsageMetadataCallbackHandler
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _render_history(messages, max_msgs: int = 8) -> str:
+def _render_history(messages, max_msgs: int = 3) -> str:
     """Render the recent conversation (excluding the latest message) as plain text
     for the router, so it can resolve references like 'this broker' / 'that company'.
     Only user/assistant text is included - tool calls and system messages are skipped."""
@@ -34,55 +35,36 @@ def _render_history(messages, max_msgs: int = 8) -> str:
     return "\n".join(lines) if lines else "(no prior conversation)"
 
 
-async def _stream_agent(agent, messages, runtime, chunk_key: str) -> str:
-    """Run a specialist sub-agent and stream its visible text to the frontend under
-    `chunk_key`. Returns the full accumulated answer text (which the caller stores on
-    the context for the synthesize node). Handles both Qwen/OpenAI (plain-string content)
-    and Gemini/Anthropic (list-of-blocks content)."""
-    writer = get_stream_writer()
-    full_content = ""
-    skip_json_blob = False
+def _extract_text(content) -> str:
+    """Normalize message content into plain text across model providers.
 
-    async for stream_mode, chunk in agent.astream(
-        {"messages": messages},
-        stream_mode=["messages"],
-        context=runtime.context,
-    ):
-        if stream_mode != "messages":
-            continue
-        message_chunk, metadata = chunk
-        if not (message_chunk.content and metadata.get("langgraph_node") == "model"):
-            continue
+    OpenAI/ChatGPT return ``content`` as a plain string, while Gemini and
+    Anthropic return a list of content blocks. This handles both so the
+    nodes work regardless of which model an agent is configured with.
+    """
+    if not content:
+        return ""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for block in content:
+            if isinstance(block, dict):
+                parts.append(block.get("text", ""))
+            elif isinstance(block, str):
+                parts.append(block)
+        return "".join(parts)
+    return str(content)
 
-        content = message_chunk.content
-        if isinstance(content, str):                       # Qwen / OpenAI-compatible
-            text = content
-        elif (isinstance(content, list) and content        # Gemini / Anthropic blocks
-              and isinstance(content[0], dict)
-              and content[0].get("type") == "text"):
-            text = content[0].get("text", "")
-        else:
-            text = ""
 
-        if text:
-            # skip a leading JSON/XML blob some models emit before prose
-            if text.startswith("{") or text.startswith("<"):
-                skip_json_blob = True
-            if skip_json_blob:
-                if text.endswith("}") or text.endswith(">"):
-                    skip_json_blob = False
-                continue
-            writer({chunk_key: text})
-            full_content += text
 
-    return full_content
 
 
 # ---------------------------------------------------------------------------
 # Nodes
 # ---------------------------------------------------------------------------
 
-def init_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["compliance_node", "finance_node"]]:
+def init_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["compliance_node", "finance_node","__end__"]]:
     """Router / init node (runs first every turn).
 
     1. Trims old turns (context management).
@@ -112,32 +94,111 @@ def init_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[
     if decision and getattr(decision, "agents", None):
         agents = list(dict.fromkeys(decision.agents))      # de-dup, preserve order
     else:
-        agents = ["compliance", "finance"]
+        agents = ["compliance_node", "finance_node"]
+    
+    runtime.context.agents = agents  # for tracing/debugging: which agents were chosen this turn
 
-    goto = [f"{a}_node" for a in agents]
+    
 
     return Command(
-        goto=goto,
+        goto=agents,
         update={"user_query": query, "messages": messages_update},
     )
 
 
-async def compliance_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["synthesize_node"]]:
+async def compliance_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["synthesize_node", "__end__"]]:
     """Run the PSX compliance agent (SQL over psx.db). Streams its text as 'compliance_chunk'
     and stores the full answer on the context for the synthesize node."""
+    writer = get_stream_writer()
+    BLOCKED_TOOLS = {
+    "list_financials",
+    "read_financials",
+    "calc",
+    }
+
+    compliance_input_messages = filter_agent_messages(state["messages"], BLOCKED_TOOLS)
+
     agent = await get_compliance_agent()
-    text = await _stream_agent(agent, state["messages"], runtime, "compliance_chunk")
-    runtime.context.compliance_output = text          # only THIS node writes this field
-    return Command(goto="synthesize_node")
+    agent_messages = []
+    # callback = UsageMetadataCallbackHandler()
+    async for stream_mode, chunk in agent.astream(
+        {"messages": compliance_input_messages},
+        stream_mode = ["updates","messages"],
+        context = runtime.context
+        # config={"callbacks": [callback]}
+    ):
+        if stream_mode == "messages":
+            message_chunk, metadata = chunk
+            if message_chunk.content and metadata.get('langgraph_node') == 'model':
+                text = _extract_text(message_chunk.content)
+                writer({"compliance_chunk": text})
+                full_content += text
+                
+        if stream_mode == "updates":
+           
+            for key in ["model", "tools"]:
+                if key in chunk and chunk[key].get("messages"):
+                    for msg in chunk[key]["messages"]:
+                        # Determine message type
+                        if key == "model" and isinstance(msg, AIMessage):
+                            agent_messages.append(msg)
+                        elif key == "tools" and isinstance(msg, ToolMessage):
+                            # ToolMessage
+                            agent_messages.append(msg)
+    
+   
+    runtime.context.compliance_output = full_content             # only THIS node writes this field  
+
+    # if agents length is 1, then we can skip synthesize node and go to __end__
+    if len(runtime.context.agents) == 1 and runtime.context.agents[0] == "compliance_node":
+        return Command(goto="__end__")
+    return Command(goto="synthesize_node" ,
+                   update={"messages": agent_messages})
 
 
-async def finance_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["synthesize_node"]]:
+async def finance_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["synthesize_node", "__end__"]]:
     """Run the PSX finance agent (markdown financial summaries). Streams its text as
     'finance_chunk' and stores the full answer on the context for the synthesize node."""
+    writer = get_stream_writer()
+    BLOCKED_TOOLS = {
+   "run_sql"
+    }
+
+    finance_input_messages = filter_agent_messages(state["messages"], BLOCKED_TOOLS)
     agent = await get_finance_agent()
-    text = await _stream_agent(agent, state["messages"], runtime, "finance_chunk")
-    runtime.context.finance_output = text             # only THIS node writes this field
-    return Command(goto="synthesize_node")
+    agent_messages = []
+    # callback = UsageMetadataCallbackHandler()
+    async for stream_mode, chunk in agent.astream(
+        {"messages": finance_input_messages},
+        stream_mode = ["updates","messages"],
+        context = runtime.context
+        # config={"callbacks": [callback]}
+    ):
+        if stream_mode == "messages":
+            message_chunk, metadata = chunk
+            if message_chunk.content and metadata.get('langgraph_node') == 'model':
+                text = _extract_text(message_chunk.content)
+                writer({"finance_chunk": text})
+                full_content += text
+                
+        if stream_mode == "updates":
+           
+            for key in ["model", "tools"]:
+                if key in chunk and chunk[key].get("messages"):
+                    for msg in chunk[key]["messages"]:
+                        # Determine message type
+                        if key == "model" and isinstance(msg, AIMessage):
+                            agent_messages.append(msg)
+                        elif key == "tools" and isinstance(msg, ToolMessage):
+                            # ToolMessage
+                            agent_messages.append(msg)
+
+    runtime.context.finance_output = full_content            # only THIS node writes this field
+    # if agents length is 1, then we can skip synthesize node and go to __end__
+    if len(runtime.context.agents) == 1 and runtime.context.agents[0] == "finance_node":
+        return Command(goto="__end__")
+    return Command(goto="synthesize_node",
+                   update={"messages": agent_messages})
 
 
 async def synthesize_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["__end__"]]:
@@ -160,12 +221,12 @@ async def synthesize_node(state: SessionState, runtime: Runtime[SessionContext])
         if txt and txt.strip()
     ]
 
-    # Single (or zero) specialist -> no merge needed.
-    if len(outputs) <= 1:
-        final = outputs[0][1] if outputs else "Sorry, I couldn't produce an answer for that."
-        return Command(goto="__end__", update={"messages": [AIMessage(content=final)]})
+   
+    
 
     # Two or more specialists -> merge into one answer, streaming the result.
+    # the findings should be like agent_name + "\n" + agent_answer, separated by two newlines
+
     findings = "\n\n".join(f"[{name}]\n{txt}" for name, txt in outputs)
     user_prompt = SYNTHESIZE_USER_TEMPLATE.format(query=state["user_query"], findings=findings)
     llm_messages = [

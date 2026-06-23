@@ -7,9 +7,9 @@ from dotenv import load_dotenv
 from functools import lru_cache
 from langchain.messages import RemoveMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage, ToolMessage
 from langchain_core.prompts import PromptTemplate
-
+from typing import List, Set
 load_dotenv()
 
 
@@ -121,3 +121,30 @@ def trim_messages(state):
     remove_objects = [RemoveMessage(id = m.id) for m in messages_to_remove]
 
     return {"messages": remove_objects}
+
+
+def filter_agent_messages(messages: List, blocked_tools: Set[str]) -> List:
+    # Collect all IDs of AI messages that need blocking
+    blocked_ids = set()
+    output_messages = []
+    for m in messages:
+        if isinstance(m, AIMessage):
+            # Check if content exists and is a list
+            if m.content and isinstance(m.content, list):
+                for c in m.content:
+                    # Check if it's a function_call and the name is in blocked_tools
+                    if c.get("type") == "function_call" and c.get("name") in blocked_tools:
+                        blocked_ids.add(c.get("call_id"))
+                        continue
+                    else:
+                        output_messages.append(m)
+        elif isinstance(m, ToolMessage):
+            if m.name in blocked_tools:
+                blocked_ids.add(m.tool_call_id)
+                continue
+            else:
+                output_messages.append(m)
+        elif isinstance(m, HumanMessage):
+            output_messages.append(m)
+    #print("output_messagres", output_messages)
+    return output_messages

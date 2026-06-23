@@ -16,8 +16,7 @@ Compose ONE clear, plain-language answer for the user that addresses the whole q
 - Do NOT mention the agents, "sources", or that multiple answers were combined.
 - Preserve every specific figure, broker/company name, date and currency EXACTLY as given.
 - Do NOT add facts that the specialists did not provide, and do not give investment advice.
-- If the findings touch different parts of the question, connect them (e.g. relate a
-  company's financial health to the compliance record of the broker being considered).
+
 """
 
 # Filled by _llm_call / formatted before the model call (single-brace {placeholders}).

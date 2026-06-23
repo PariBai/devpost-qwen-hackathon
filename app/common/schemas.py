@@ -18,7 +18,7 @@ class RouteDecision(BaseModel):
     # A LIST so we can route to one agent (single-domain query) or several at once
     # (a query that spans both domains). `Literal` restricts the values to known
     # agent keys, so the model cannot invent an agent that has no matching node.
-    agents: List[Literal["compliance", "finance"]] = Field(
+    agents: List[Literal["compliance_node", "finance_node", "__end__"]] = Field(
         description=(
             "Specialist agents to invoke for this query. Return exactly the ones "
             "needed: one for a single-domain question, both when the question needs "
