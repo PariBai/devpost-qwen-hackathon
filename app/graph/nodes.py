@@ -21,19 +21,26 @@ from app.common.utils import filter_agent_messages
 # ---------------------------------------------------------------------------
 
 def _render_history(messages, max_msgs: int = 3) -> str:
-    """Render the recent conversation (excluding the latest message) as plain text
-    for the router, so it can resolve references like 'this broker' / 'that company'.
-    Only user/assistant text is included - tool calls and system messages are skipped."""
-    prior = messages[:-1][-max_msgs:]          # everything before the latest message
+    prior = messages[:-1][-max_msgs:]
     lines = []
+    last_role = None  # track previous role
+
     for m in prior:
         role = getattr(m, "type", "")
         content = m.content if isinstance(m.content, str) else str(m.content)
-        print(f"role: {role}, content: {content}")
+
         if role == "human" and content.strip():
             lines.append(f"User: {content.strip()}")
+            last_role = "human"
+
         elif role == "ai" and content.strip():
-            lines.append(f"Assistant: {content.strip()}")
+            if last_role == "ai":
+                # Replace the previous AI line instead of appending
+                lines[-1] = f"Assistant: {content.strip()}"
+            else:
+                lines.append(f"Assistant: {content.strip()}")
+            last_role = "ai"
+
     return "\n".join(lines) if lines else "(no prior conversation)"
 
 
