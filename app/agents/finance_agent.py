@@ -7,7 +7,7 @@ from langchain.agents.middleware import (
 )
 from app.prompts.finance import FINANCE_SYSTEM_PROMPT
 from app.common.context import SessionContext
-from app.tools.finance import list_financials, read_financials, calc
+from app.tools.finance import list_financials, read_financials, calc , get_stock_snapshot
 
 @wrap_model_call
 async def dynamic_model(
@@ -26,6 +26,7 @@ async def get_finance_agent():
             list_financials,
             read_financials,
             calc,
+            get_stock_snapshot
         ],
         context_schema = SessionContext,
         middleware = [

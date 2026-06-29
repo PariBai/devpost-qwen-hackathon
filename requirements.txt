@@ -23,3 +23,5 @@ langchain-openai                # Qwen via Alibaba Cloud DashScope (OpenAI-compa
 fastapi
 uvicorn
 pydantic
+
+bs4
