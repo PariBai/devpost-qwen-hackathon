@@ -124,6 +124,7 @@ async def compliance_node(state: SessionState, runtime: Runtime[SessionContext])
     "list_financials",
     "read_financials",
     "calc",
+    "get_stock_snapshot"
     }
 
     compliance_input_messages = filter_agent_messages(state["messages"], BLOCKED_TOOLS)

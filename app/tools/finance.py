@@ -362,8 +362,8 @@ def get_stock_snapshot(symbol: str) -> str:
 """.strip()
 
 
-# ── Standalone / Jupyter entry ────────────────────────────────────────────────
-if __name__ == "__main__":
-    import sys
-    sym = sys.argv[1] if len(sys.argv) > 1 and "ipykernel" not in sys.argv[0] else "EFERT"
-    print(get_stock_snapshot.invoke(sym))
+# # ── Standalone / Jupyter entry ────────────────────────────────────────────────
+# if __name__ == "__main__":
+#     import sys
+#     sym = sys.argv[1] if len(sys.argv) > 1 and "ipykernel" not in sys.argv[0] else "EFERT"
+#     print(get_stock_snapshot.invoke(sym))

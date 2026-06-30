@@ -7,10 +7,15 @@ make data in finance node available
 
 make cross session conversation
 make both agents thinking visible
-
-
-
-tweak prompt so hat it can give stock advice
+tweak prompt so that it can give stock advice plus router prompt for updated finance capabilities
+backend
+frontend
+deployment
+consolidated something like that
+graphs 
+daily follow up 
+compliance steps
+look in mcp code
 
 finance
 it could fetch companies with growing stock market value as of today and their unit price value tool to finance 
@@ -22,3 +27,6 @@ it can guide on how to create account on arif habib and a few more a separate ma
 as a tool to compliance 
 broker with less customer fee
 reviews fetching, margin rate
+
+
+
