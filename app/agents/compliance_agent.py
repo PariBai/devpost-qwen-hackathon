@@ -8,6 +8,12 @@ from langchain.agents.middleware import (
 from app.prompts.compliance import COMPLIANCE_SYSTEM_PROMPT
 from app.common.context import SessionContext
 from app.tools.compliance import run_sql
+from app.tools.memory import (
+    save_interaction_memory,
+    search_interaction_memories,
+    get_user_preference,
+    save_user_preference,
+)
 
 @wrap_model_call
 async def dynamic_model(
@@ -24,6 +30,10 @@ async def get_compliance_agent():
         system_prompt = COMPLIANCE_SYSTEM_PROMPT,
         tools = [
             run_sql,
+            save_interaction_memory,
+            search_interaction_memories,
+            get_user_preference,
+            save_user_preference,
         ],
         context_schema = SessionContext,
         middleware = [

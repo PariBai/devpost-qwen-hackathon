@@ -1,6 +1,7 @@
 from typing import Dict, Any
 from app.graph.workflows import _create_psx_workflow
 from app.common.checkpointer import get_memory_checkpointer
+from app.common.store import get_store
 
 _compiled_agents: Dict[str, Any] = {}
 
@@ -9,7 +10,7 @@ _WORKFLOW_FACTORIES = {
     "psx_agent": _create_psx_workflow()
 }
 
-async def get_compiled_agent(agent_name: str):
+async def get_compiled_agent(agent_name: str, use_postgres: bool = True):
     global _compiled_agents
 
     if agent_name not in _compiled_agents:
@@ -19,6 +20,10 @@ async def get_compiled_agent(agent_name: str):
 
         workflow = _WORKFLOW_FACTORIES[agent_name]
         checkpointer = await get_memory_checkpointer()
-        _compiled_agents[agent_name] = workflow.compile(checkpointer = checkpointer)
+        store = await get_store(use_postgres=use_postgres)
+        _compiled_agents[agent_name] = workflow.compile(
+            checkpointer=checkpointer,
+            store=store,
+        )
 
     return _compiled_agents[agent_name]

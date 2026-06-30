@@ -14,6 +14,7 @@ from app.prompts.synthesize import SYNTHESIZE_SYSTEM_PROMPT, SYNTHESIZE_USER_TEM
 from app.agents.compliance_agent import get_compliance_agent
 from app.agents.finance_agent import get_finance_agent
 from app.common.utils import filter_agent_messages
+from app.common import memory as memory_utils
 # from langchain_core.callbacks import UsageMetadataCallbackHandler
 
 # ---------------------------------------------------------------------------
@@ -232,6 +233,8 @@ async def synthesize_node(state: SessionState, runtime: Runtime[SessionContext])
     - If TWO+ agents answered: make one LLM call to merge them into a single unified
       answer, streamed as 'synthesize_chunk'.
     Either way, the final answer is written to `messages` so future turns have it as context.
+    
+    Also saves the interaction and answer to long-term memory for cross-session learning.
     """
     writer = get_stream_writer()
 
@@ -243,9 +246,6 @@ async def synthesize_node(state: SessionState, runtime: Runtime[SessionContext])
         )
         if txt and txt.strip()
     ]
-
-   
-    
 
     # Two or more specialists -> merge into one answer, streaming the result.
     # the findings should be like agent_name + "\n" + agent_answer, separated by two newlines
@@ -271,5 +271,37 @@ async def synthesize_node(state: SessionState, runtime: Runtime[SessionContext])
         if text:
             writer({"synthesize_chunk": text})
             full += text
+
+    # Save this interaction to long-term memory for future reference
+    try:
+        if runtime.store is not None:
+            user_id = runtime.context.user_id
+            # Save the interaction query and answer
+            await memory_utils.log_interaction(
+                runtime.store,
+                user_id,
+                "query_response",
+                {
+                    "query": state["user_query"],
+                    "answer_summary": full[:500] if full else "",  # Store first 500 chars
+                    "agents_used": runtime.context.agents,
+                },
+            )
+            
+            # Save key findings as memories for semantic search
+            if findings:
+                await memory_utils.save_memory(
+                    runtime.store,
+                    user_id,
+                    {
+                        "type": "synthesis_findings",
+                        "query": state["user_query"],
+                        "findings": findings,
+                    },
+                    context="general",
+                )
+    except Exception as e:
+        # Log but don't fail the synthesis if memory save fails
+        print(f"Warning: Failed to save memory: {e}")
 
     return Command(goto="__end__", update={"messages": [AIMessage(content=full)]})

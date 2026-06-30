@@ -10,9 +10,11 @@ from typing import Optional, Dict, Any, List
 class SessionContext:
     """
     Context schema for managing session-specific data across agent conversations
-    (compliance, finance, ...). Carries the per-request model and usage metadata.
+    (compliance, finance, ...). Carries the per-request model, usage metadata,
+    and cross-session memory access.
     """
     thread_id: str
+    user_id: str  # Used for namespacing memories across sessions
     model: Any
     usage: Optional[Dict[str, Any]] = None
     agents : List[str] = None  # List of agents invoked for this session (for tracing/debugging)
