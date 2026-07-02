@@ -61,13 +61,13 @@ Ordered: **deploy backend first → frontend → prompts+features → docs/video
 - [ ] 0.5 **Rotate the exposed `DASHSCOPE_API_KEY`** (it sat in `.env.example`) and put the new one only in `.env`.
 
 ### Phase 1 — Wrap the graph in a FastAPI backend (local, ~1 day)
-- [ ] 1.1 Create `app/api/main.py` with FastAPI.
-- [ ] 1.2 `POST /chat` streaming endpoint (SSE) that takes `{message, thread_id}` + auth token, builds `SessionContext(user_id=…)`, and streams the existing `compliance_chunk`/`finance_chunk`/`synthesize_chunk`.
-- [ ] 1.3 Wire the **Postgres checkpointer** (per-session/thread context) and **Postgres store** (cross-session memory) via `DB_URL_LOCAL` — the "per-session + cross-session with Postgres" goal.
+- [x] 1.1 Created root `main.py` (FastAPI entrypoint, OUTSIDE `app/` so `app/` stays pure agent logic). Run: `uvicorn main:app`.
+- [x] 1.2 `POST /chat` SSE endpoint — takes `{message, thread_id, user_id}`, builds `SessionContext`, streams `compliance`/`finance`/`synthesize` (mirrors the notebook's agent-based routing). Uses **Qwen** and the **full `psx_agent`** graph. Also emits a `preferences` event after the turn for the memory panel.
+- [x] 1.3 Wired Postgres checkpointer + store: `compile.py` now uses Postgres for BOTH when `DB_URL`/`DB_URL_LOCAL` is set, else in-memory fallback. `store.get_store` honors either var. (Validated in fallback mode; real-Postgres test happens in Phase 3.)
 - [ ] 1.4 `GET /threads` and `GET /threads/{id}` so the frontend can list/resume conversations (uses the checkpointer).
-- [ ] 1.5 `GET /me/preferences` endpoint (reads the store) — powers the "🧠 memory panel" in the UI and is a great demo visual.
-- [ ] 1.6 CORS config for the frontend origin.
-- [ ] 1.7 Run locally, test with `curl`/browser before touching the cloud.
+- [x] 1.5 `GET /me/preferences` endpoint (reads the store) — powers the memory panel.
+- [x] 1.6 CORS middleware (`*` for dev; tighten to the frontend URL before submission).
+- [~] 1.7 Local test: `/health` + `/me/preferences` verified via TestClient. **`/chat` end-to-end still to run with your DashScope key.**
 
 ### Phase 2 — Minimal auth (local, ~1–2 hrs)
 - [ ] 2.1 `users` table + migration/setup.

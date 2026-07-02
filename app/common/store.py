@@ -88,7 +88,7 @@ async def get_store(use_postgres: bool = True) -> BaseStore:
     Returns:
         A configured store instance (PostgresStore or InMemoryStore)
     """
-    if use_postgres and os.getenv("DB_URL_LOCAL"):
+    if use_postgres and (os.getenv("DB_URL") or os.getenv("DB_URL_LOCAL")):
         return await get_postgres_store()
     else:
         return await get_memory_store()
