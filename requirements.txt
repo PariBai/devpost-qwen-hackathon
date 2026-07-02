@@ -1,27 +1,43 @@
-# --- PDF parsing API client + notebook ---
-requests
-ipykernel
+# PSX MemoryAgent — Python dependencies (pinned to the versions used in dev)
+# Install:  pip install -r requirements.txt
 
-# --- Gemini markdown pipeline (to be swapped for Qwen/DashScope) ---
-python-dotenv
-google-genai
+# --- Notebook / HTTP client ---
+requests==2.34.2
+ipykernel==7.3.0
+
+# --- Config ---
+python-dotenv==1.2.2
+
+# --- Gemini markdown pipeline (legacy; being swapped for Qwen/DashScope) ---
+google-genai==2.10.0
 
 # --- Local PDF inspection / ingestion ---
-pdfplumber
-PyMuPDF
+pdfplumber==0.11.10
+PyMuPDF==1.28.0
+
+# --- HTML scraping (get_stock_snapshot) ---
+beautifulsoup4==4.15.0
+
+# --- Fuzzy matching (read_financials section headers) ---
+rapidfuzz==3.14.5
 
 # --- Agent (LangGraph + LangChain) ---
-rapidfuzz                       # fuzzy section-header matching in read_financials
-langchain
-langgraph
-langgraph-checkpoint-postgres
-psycopg[binary]                 # async Postgres checkpointer driver (binary build for Windows)
-langchain-google-genai
-langchain-openai                # Qwen via Alibaba Cloud DashScope (OpenAI-compatible endpoint)
+langchain==1.3.11
+langchain-core==1.4.8
+langchain-openai==1.3.3            # Qwen via Alibaba Cloud DashScope (OpenAI-compatible endpoint)
+langchain-google-genai==4.2.6     # legacy Gemini branch
+langgraph==1.2.7
+langgraph-checkpoint==4.1.1
+langgraph-checkpoint-postgres==3.1.0
+psycopg[binary]==3.3.4            # Postgres driver (checkpointer + store)
+psycopg-pool==3.3.1               # connection pooling for the Postgres checkpointer/store
 
-# --- API + frontend ---
-fastapi
-uvicorn
-pydantic
+# --- API (Phase 1) ---
+fastapi==0.139.0
+uvicorn==0.49.0
+pydantic==2.13.4
 
-bs4
+# --- Auth (Phase 2): minimal JWT login for a stable user_id ---
+passlib[bcrypt]                   # password hashing
+PyJWT                             # JWT issue/verify
+python-multipart                  # FastAPI form parsing for login

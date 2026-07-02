@@ -53,10 +53,12 @@ What consumes them:
 Ordered: **deploy backend first → frontend → prompts+features → docs/video.** Auth slots in with the backend because deployment needs it.
 
 ### Phase 0 — Foundations (local, ~half day)
-- [ ] 0.1 Confirm credits (above) and report amounts.
-- [ ] 0.2 Freeze a `requirements.txt` from the `psxd` env (`pip freeze > requirements.txt`), pruned to what's actually imported.
-- [ ] 0.3 Create a `.env.example` documenting every var (`DASHSCOPE_API_KEY`, `DB_URL_LOCAL`, `QWEN_MODEL`, `JWT_SECRET`, `FINANCE_DATA_DIR`, `DB_PATH`).
-- [ ] 0.4 Add an open-source `LICENSE` file (MIT is fine) — **required for eligibility**, do it now so it's not forgotten.
+- [x] 0.1 Confirm credits — **$40 Alibaba Cloud coupon** (exp 2026-08-09). Model/DashScope coupon **not yet applied** (still on paid account → APPLY IT).
+- [x] 0.2 Pinned `requirements.txt` to installed `psxd` versions (+ auth/API deps for later phases).
+- [x] 0.3 Rewrote `.env.example` documenting every var (`DASHSCOPE_API_KEY`, `DASHSCOPE_BASE_URL`, `QWEN_MODEL`, `DB_PATH`, `FINANCE_DATA_DIR`, `DB_URL_LOCAL`/`DB_URL`, `JWT_SECRET`). **Removed the real API key** that was committed there → placeholder now.
+- [x] 0.4 Added MIT `LICENSE`. `.gitignore` already ignores `.env`.
+- [ ] 0.1b Apply the DashScope/Qwen model coupon so tokens stop billing the paid card.
+- [ ] 0.5 **Rotate the exposed `DASHSCOPE_API_KEY`** (it sat in `.env.example`) and put the new one only in `.env`.
 
 ### Phase 1 — Wrap the graph in a FastAPI backend (local, ~1 day)
 - [ ] 1.1 Create `app/api/main.py` with FastAPI.
