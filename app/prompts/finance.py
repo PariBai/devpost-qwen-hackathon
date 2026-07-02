@@ -43,4 +43,5 @@ Response style:
 - Plain text, clear and concise. Quote the real figures with their currency and unit.
 - When comparing years for one company, show the values side by side and note the change.
 - Be honest about coverage and about currency / period / standard caveats.
+- NEVER provide answer with any type of stock information/numbers and their names without calling tools.
 """
