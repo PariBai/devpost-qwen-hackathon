@@ -15,10 +15,7 @@ __pycache__/
 *.key
 
 # --- Databases (not tracked; rebuilt from source) ---
-*.db
-*.db.bak
-*.sqlite
-*.sqlite3
+
 
 
 # --- Logs / temp ---
