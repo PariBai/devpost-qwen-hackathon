@@ -1,0 +1,46 @@
+# One stack, identical locally and on the Alibaba Cloud ECS.
+#   Local:   docker compose up --build
+#   On ECS:  docker compose up -d --build
+#
+# Postgres serves BOTH the per-session checkpointer and the cross-session memory
+# store (and, from Phase 2, the users table). Data lives in the `pgdata` volume so
+# it survives container restarts. Credentials come from .env (see .env.example).
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-psxmemory}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      # Host 5433 -> container 5432, so it does NOT clash with any Postgres already
+      # running on your machine's 5432. (The api talks to the DB over the internal
+      # network as `db:5432`, unaffected by this host mapping.)
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-psxmemory}"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy   # wait until Postgres is actually accepting connections
+    env_file:
+      - .env                          # DASHSCOPE_API_KEY, QWEN_MODEL, JWT_SECRET, etc.
+    environment:
+      # Inside the compose network the DB host is the service name `db`. This DB_URL
+      # overrides any DB_URL_LOCAL in .env, so the app always uses the compose Postgres.
+      DB_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-psxmemory}
+    ports:
+      - "8086:8086"   # host 8086 -> container 8086 (uvicorn --port 8086)
+
+volumes:
+  pgdata:

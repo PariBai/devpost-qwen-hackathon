@@ -76,9 +76,9 @@ Ordered: **deploy backend first → frontend → prompts+features → docs/video
 - [ ] 2.4 Test: two users, isolated memory.
 
 ### Phase 3 — Dockerize (local, ~half day)
-- [ ] 3.1 `Dockerfile` for the FastAPI app.
-- [ ] 3.2 `docker-compose.yml` with two services: `api` + `postgres` (with a named volume so memory persists across restarts).
-- [ ] 3.3 `docker compose up` locally and confirm the whole thing works end-to-end in containers. **If it runs in Docker locally, it will run on the ECS.**
+- [x] 3.1 `Dockerfile` (python:3.12-slim, uvicorn `main:app`) + `.dockerignore`.
+- [x] 3.2 `docker-compose.yml`: `db` (postgres:16, `pgdata` volume, host 5433→5432, healthcheck) + `api` (builds Dockerfile, `DB_URL`→`db` service). `.env.example` documents `POSTGRES_USER/PASSWORD/DB`. Compose config validated.
+- [ ] 3.3 `docker compose up` end-to-end (needs: real `POSTGRES_*` creds in `.env`, api image build to pass). Confirm memory persists across a restart.
 
 ### Phase 4 — Deploy to Alibaba Cloud ECS (~1 day, guided each click)
 - [ ] 4.1 Create an ECS instance (Ubuntu, small size), open security-group ports (22 SSH, 80/443, the API port).
