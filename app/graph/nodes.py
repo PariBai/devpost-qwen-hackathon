@@ -339,7 +339,7 @@ async def memory_writer_node(state: SessionState, runtime: Runtime[SessionContex
             user_prompt_template=MEMORY_WRITER_USER_TEMPLATE,
             user_prompt_inputs={
                 "previous_assistant_answer": final_answer,
-                "current_user_query": state["user_query"],
+                "current_user_query": state.get("user_query", ""),
                 "existing_preferences": existing_view,
             },
             llm=runtime.context.model,

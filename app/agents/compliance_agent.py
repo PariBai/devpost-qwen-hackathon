@@ -25,6 +25,8 @@ async def dynamic_model(
     # READ path: preferences were preloaded once in init_node. Inject them into the
     # system prompt so the agent applies them with NO extra tool call / round-trip.
     prefs = request.runtime.context.user_preferences or {}
+    print("here are prefs")
+    print(prefs)
     if prefs:
         pref_lines = "\n".join(f"- {k}: {v}" for k, v in prefs.items())
         system_prompt = (

@@ -42,15 +42,17 @@ RULES:
 """
 
 # Filled by _llm_call / formatted before the model call (single-brace {placeholders}).
+# NOTE: these placeholder names MUST match the keys passed in memory_writer_node's
+# user_prompt_inputs dict, or PromptTemplate.format() raises KeyError.
 MEMORY_WRITER_USER_TEMPLATE = """Current stored preferences (key -> value):
 {existing_preferences}
 
 --- Latest turn ---
 User said:
-{user_query}
+{current_user_query}
 
 Assistant answered:
-{assistant_answer}
+{previous_assistant_answer}
 
 Decide the preference changes for this turn (upsert / delete), reusing existing keys where
 they apply. Return an empty ops list if nothing durable was expressed."""
