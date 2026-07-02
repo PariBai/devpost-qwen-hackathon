@@ -1,6 +1,7 @@
 import os
 import re
 import uuid
+import requests  # used by _fetch() to scrape PSX stock pages
 from pathlib import Path
 from urllib.parse import urlparse
 from typing import Optional, Any

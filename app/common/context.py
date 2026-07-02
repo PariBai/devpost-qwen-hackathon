@@ -19,6 +19,12 @@ class SessionContext:
     usage: Optional[Dict[str, Any]] = None
     agents : List[str] = None  # List of agents invoked for this session (for tracing/debugging)
 
+    # User's long-term preferences, PRELOADED once per turn in init_node (one store
+    # read) and injected into each agent's system prompt by the dynamic_model
+    # middleware. This is the READ path: agents apply preferences with no extra tool
+    # call / round-trip. Shape: {preference_key: preference_value_dict}.
+    user_preferences: Optional[Dict[str, Any]] = None
+
     # Per-agent final answers for the current turn. Each specialist node writes ONLY
     # its own field (compliance_node -> compliance_output, finance_node -> finance_output),
     # so parallel writes never touch the same attribute -> no race. The synthesize node
@@ -26,3 +32,8 @@ class SessionContext:
     # set to "" so they auto-reset every message (no manual clearing needed).
     compliance_output: str = ""
     finance_output: str = ""
+
+    # The merged answer produced by synthesize_node (only set when 2+ agents ran).
+    # memory_writer_node prefers this as "the final answer"; on a single-agent turn
+    # it stays "" and the writer falls back to the one non-empty agent output.
+    synthesize_output: str = ""

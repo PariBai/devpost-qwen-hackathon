@@ -26,7 +26,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 from langchain_core.tools import tool
-from app.common.utils import  _fetch , _build_kv , perf , _inline_kv , _52w , _company_name , _price , _range_row , _find , _announcements
+from app.common.utils import  _fetch , _build_kv , _perf , _inline_kv , _52w , _company_name , _price , _range_row , _find , _announcements
 
 DATA_FILE = os.getenv("FINANCE_DATA_FILE", "data_md/psx_financials.md")
 

@@ -8,9 +8,10 @@ from app.common import state
 from app.common.state import SessionState
 from app.common.context import SessionContext
 from app.common.utils import trim_messages, _llm_call
-from app.common.schemas import RouteDecision
+from app.common.schemas import RouteDecision, PreferenceUpdate
 from app.prompts.router import ROUTER_SYSTEM_PROMPT, ROUTER_USER_TEMPLATE
 from app.prompts.synthesize import SYNTHESIZE_SYSTEM_PROMPT, SYNTHESIZE_USER_TEMPLATE
+from app.prompts.memory_writer import MEMORY_WRITER_SYSTEM_PROMPT, MEMORY_WRITER_USER_TEMPLATE
 from app.agents.compliance_agent import get_compliance_agent
 from app.agents.finance_agent import get_finance_agent
 from app.common.utils import filter_agent_messages
@@ -21,7 +22,7 @@ from app.common import memory as memory_utils
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _render_history(messages, max_msgs: int = 3) -> str:
+def _render_history(messages, max_msgs: int = 2) -> str:
     prior = messages[:-1][-max_msgs:]
     lines = []
     last_role = None  # track previous role
@@ -74,12 +75,14 @@ def _extract_text(content) -> str:
 # Nodes
 # ---------------------------------------------------------------------------
 
-def init_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["compliance_node", "finance_node","__end__"]]:
+async def init_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["compliance_node", "finance_node","__end__"]]:
     """Router / init node (runs first every turn).
 
     1. Trims old turns (context management).
     2. Stashes the latest user query.
-    3. Makes ONE structured LLM call to classify which specialist(s) are needed, then
+    3. PRELOADS the user's long-term preferences into context ONCE (the READ path) so
+       agents can apply them via the system prompt with no extra tool round-trip.
+    4. Makes ONE structured LLM call to classify which specialist(s) are needed, then
        fans out: goto a single agent node, or BOTH (parallel) when the query spans domains.
     The router only picks DOMAINS - the agents themselves resolve entities from the full
     message history, so the router never needs to name a specific broker/company.
@@ -89,6 +92,19 @@ def init_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[
 
     query = state["messages"][-1].content
     history = _render_history(state["messages"])
+
+    # READ path: fetch the user's preferences once per turn and stash them on the
+    # context. The dynamic_model middleware in each agent injects these into the
+    # system prompt, so preferences shape every answer without an extra tool call.
+    if runtime.store is not None:
+        try:
+            prefs = await memory_utils.list_preferences(runtime.store, runtime.context.user_id)
+            runtime.context.user_preferences = {p.key: p.value for p in prefs}
+        except Exception as e:
+            # Preferences are an enhancement, not a hard dependency - never fail the
+            # turn if the store read hiccups.
+            print(f"Warning: failed to preload preferences: {e}")
+            runtime.context.user_preferences = {}
 
     decision = _llm_call(
         system_prompt=ROUTER_SYSTEM_PROMPT,
@@ -116,7 +132,7 @@ def init_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[
     )
 
 
-async def compliance_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["synthesize_node", "__end__"]]:
+async def compliance_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["synthesize_node", "memory_writer_node"]]:
     """Run the PSX compliance agent (SQL over psx.db). Streams its text as 'compliance_chunk'
     and stores the full answer on the context for the synthesize node."""
     writer = get_stream_writer()
@@ -161,11 +177,13 @@ async def compliance_node(state: SessionState, runtime: Runtime[SessionContext])
                             agent_messages.append(msg)
     
    
-    runtime.context.compliance_output = full_content             # only THIS node writes this field  
+    runtime.context.compliance_output = full_content             # only THIS node writes this field
     # print("agent messagwes inside compliance_node", agent_messages)
-    # if agents length is 1, then we can skip synthesize node and go to __end__
+    # If this is the ONLY agent, skip synthesize (nothing to merge) and go straight to
+    # the memory writer. We still route THROUGH memory_writer_node (not __end__) so the
+    # preference-reflection step runs on single-agent turns too.
     if len(runtime.context.agents) == 1 and runtime.context.agents[0] == "compliance_node":
-        goto = "__end__"
+        goto = "memory_writer_node"
     else:
         goto = "synthesize_node"
     return Command(goto=goto,
@@ -173,7 +191,7 @@ async def compliance_node(state: SessionState, runtime: Runtime[SessionContext])
    
 
 
-async def finance_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["synthesize_node", "__end__"]]:
+async def finance_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["synthesize_node", "memory_writer_node"]]:
     """Run the PSX finance agent (markdown financial summaries). Streams its text as
     'finance_chunk' and stores the full answer on the context for the synthesize node."""
     writer = get_stream_writer()
@@ -215,26 +233,26 @@ async def finance_node(state: SessionState, runtime: Runtime[SessionContext]) ->
 
     runtime.context.finance_output = full_content            # only THIS node writes this field
     # print("agent messagwes inside finance_node", agent_messages)
-    # if agents length is 1, then we can skip synthesize node and go to __end__
+    # If this is the ONLY agent, skip synthesize and route straight to the memory
+    # writer (still THROUGH memory_writer_node, not __end__, so reflection runs).
     if len(runtime.context.agents) == 1 and runtime.context.agents[0] == "finance_node":
-        goto = "__end__"
+        goto = "memory_writer_node"
     else:
-        goto = "synthesize_node"        
+        goto = "synthesize_node"
 
     return Command(goto=goto,
                    update={"messages": agent_messages})
 
 
-async def synthesize_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["__end__"]]:
-    """Fan-in: runs once after the specialist(s) finish.
+async def synthesize_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["memory_writer_node"]]:
+    """Fan-in: runs once after the specialist(s) finish (only reached when 2+ agents ran).
 
-    - If only ONE agent answered: use its text directly (it already streamed live) - no
-      extra LLM call.
-    - If TWO+ agents answered: make one LLM call to merge them into a single unified
-      answer, streamed as 'synthesize_chunk'.
-    Either way, the final answer is written to `messages` so future turns have it as context.
-    
-    Also saves the interaction and answer to long-term memory for cross-session learning.
+    - Makes one LLM call to merge the specialists' answers into a single unified reply,
+      streamed as 'synthesize_chunk'.
+    - The merged text is written to `messages` (so future turns have it as context) AND
+      onto context.synthesize_output, which memory_writer_node treats as "the final
+      answer" for this turn.
+    Routes to memory_writer_node so the preference-reflection step runs before END.
     """
     writer = get_stream_writer()
 
@@ -272,36 +290,73 @@ async def synthesize_node(state: SessionState, runtime: Runtime[SessionContext])
             writer({"synthesize_chunk": text})
             full += text
 
-    # Save this interaction to long-term memory for future reference
-    try:
-        if runtime.store is not None:
-            user_id = runtime.context.user_id
-            # Save the interaction query and answer
-            await memory_utils.log_interaction(
-                runtime.store,
-                user_id,
-                "query_response",
-                {
-                    "query": state["user_query"],
-                    "answer_summary": full[:500] if full else "",  # Store first 500 chars
-                    "agents_used": runtime.context.agents,
-                },
-            )
-            
-            # Save key findings as memories for semantic search
-            if findings:
-                await memory_utils.save_memory(
-                    runtime.store,
-                    user_id,
-                    {
-                        "type": "synthesis_findings",
-                        "query": state["user_query"],
-                        "findings": findings,
-                    },
-                    context="general",
-                )
-    except Exception as e:
-        # Log but don't fail the synthesis if memory save fails
-        print(f"Warning: Failed to save memory: {e}")
+    # Expose the merged answer so memory_writer_node can reflect on the FINAL text the
+    # user saw (not just one specialist's slice). Per-thread messages are persisted by
+    # the Postgres checkpointer; the long-term store holds only user preferences.
+    runtime.context.synthesize_output = full
 
-    return Command(goto="__end__", update={"messages": [AIMessage(content=full)]})
+    return Command(goto="memory_writer_node", update={"messages": [AIMessage(content=full)]})
+
+
+async def memory_writer_node(state: SessionState, runtime: Runtime[SessionContext]) -> Command[Literal["__end__"]]:
+    """Post-turn reflection (WRITE path). Single exit point for the whole graph.
+
+    Runs AFTER the answer has streamed, so it adds no latency to the user-visible
+    response. It looks at the finished turn and reconciles the user's long-term
+    preferences:
+      1. Resolve the final answer (synthesize output if 2 agents ran, else the one
+         agent's output).
+      2. Load existing preferences (to reuse keys / know what can be forgotten).
+      3. One structured LLM call -> a list of upsert/delete ops (usually empty).
+      4. Apply the ops to the store.
+
+    The agent never decides to save anything; this node does. Failures are swallowed so
+    a bad memory write can never break a turn the user already got an answer for.
+    """
+    # No store (e.g. store misconfigured) -> nothing to write, just finish.
+    if runtime.store is None:
+        return Command(goto="__end__")
+
+    try:
+        user_id = runtime.context.user_id
+
+        # (1) Resolve "the final answer" across both graph paths. Priority: the merged
+        # synthesize text when 2+ agents ran; otherwise whichever single agent answered.
+        final_answer = (
+            runtime.context.synthesize_output
+            or runtime.context.compliance_output
+            or runtime.context.finance_output
+        )
+
+        # (2) Current preferences, as {key: value}, so the LLM reuses keys instead of
+        # inventing duplicates and knows what exists to forget.
+        existing = await memory_utils.list_preferences(runtime.store, user_id)
+        existing_view = {item.key: item.value for item in existing}
+
+        # (3) One reflection call. Returns PreferenceUpdate.ops - empty on most turns.
+        update = _llm_call(
+            system_prompt=MEMORY_WRITER_SYSTEM_PROMPT,
+            user_prompt_template=MEMORY_WRITER_USER_TEMPLATE,
+            user_prompt_inputs={
+                "previous_assistant_answer": final_answer,
+                "current_user_query": state["user_query"],
+                "existing_preferences": existing_view,
+            },
+            llm=runtime.context.model,
+            schema=PreferenceUpdate,
+            structured_output=True,
+        )
+
+        # (4) Apply each op. upsert overwrites the key; delete forgets it.
+        for op in getattr(update, "ops", []) or []:
+            if op.action == "upsert":
+                await memory_utils.save_preference(runtime.store, user_id, op.key, op.value)
+                print(f"[memory] remembered '{op.key}': {op.reason}")
+            elif op.action == "delete":
+                await memory_utils.delete_preference(runtime.store, user_id, op.key)
+                print(f"[memory] forgot '{op.key}': {op.reason}")
+    except Exception as e:
+        # Never fail the turn on a memory write - the user already has their answer.
+        print(f"Warning: memory_writer failed (turn still succeeded): {e}")
+
+    return Command(goto="__end__")

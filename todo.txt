@@ -8,6 +8,7 @@ make data in finance node available
 make cross session conversation
 make both agents thinking visible
 tweak prompt so that it can give stock advice plus router prompt for updated finance capabilities
+update router prompt for advanced functionality 
 backend
 frontend
 deployment
