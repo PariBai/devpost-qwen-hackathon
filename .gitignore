@@ -19,7 +19,7 @@ __pycache__/
 *.db.bak
 *.sqlite
 *.sqlite3
-data/psx.db
+
 
 # --- Logs / temp ---
 *.log
