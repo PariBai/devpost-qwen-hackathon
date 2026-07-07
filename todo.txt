@@ -22,6 +22,7 @@ tool call limit middleware or tell how best short tem ivestment , investment typ
 add today date inprompt
 2026 q1 etc
 saving prefernces via system prompt is token consuming o need to cut down after that length or find another way
+stop hallucination if tool output oe no tool retun nothing
 
 finance
 it could fetch companies with growing stock market value as of today and their unit price value tool to finance 

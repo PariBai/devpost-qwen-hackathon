@@ -23,6 +23,11 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
+# --- Internal planning docs (not for the public repo) ---
+PROJECT_PLAN.md
+DEPLOY.md
+todo.txt
+
 # --- Editor / IDE ---
 .vscode/
 .idea/
