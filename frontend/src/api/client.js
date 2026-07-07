@@ -5,8 +5,12 @@
  * - Throws an Error carrying the backend's `detail` message on non-2xx responses.
  */
 
-export const API_BASE =
-  import.meta.env.VITE_API_BASE?.replace(/\/$/, "") || "http://47.84.234.2:8086";
+// VITE_API_BASE resolution:
+//   unset            -> ECS default (handy for `npm run dev` with no .env)
+//   "/" or ""        -> same-origin (reverse-proxied behind nginx in Docker)
+//   "http://host:port" -> that absolute backend
+const _rawBase = import.meta.env.VITE_API_BASE;
+export const API_BASE = (_rawBase ?? "http://47.84.234.2:8086").replace(/\/$/, "");
 
 export class ApiError extends Error {
   constructor(message, status) {

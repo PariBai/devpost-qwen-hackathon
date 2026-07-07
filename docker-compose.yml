@@ -41,7 +41,21 @@ services:
       # overrides any DB_URL_LOCAL in .env, so the app always uses the compose Postgres.
       DB_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-psxmemory}
     ports:
-      - "8086:8086"   # host 8086 -> container 8086 (uvicorn --port 8086)
+      - "8086:8086"   # host 8086 -> container 8086 (uvicorn --port 8086). Optional now
+                      # that nginx proxies the API, but handy for direct API/debug access.
+
+  # Static frontend served by nginx, which also reverse-proxies the API same-origin.
+  # This is what users hit: http://<host>/  (no port, no CORS).
+  web:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE: "/"            # same-origin -> nginx proxies /auth,/chats,/me,/health
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
 
 volumes:
   pgdata:
