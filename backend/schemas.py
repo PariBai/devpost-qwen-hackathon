@@ -4,19 +4,21 @@ from pydantic import BaseModel
 
 
 class SignupRequest(BaseModel):
-    username: str
+    full_name: str
+    email: str
     password: str
 
 
 class LoginRequest(BaseModel):
-    username: str
+    email: str
     password: str
 
 
 class AuthResponse(BaseModel):
     token: str
     user_id: str
-    username: str
+    email: str
+    full_name: str | None = None
 
 
 class MessageRequest(BaseModel):

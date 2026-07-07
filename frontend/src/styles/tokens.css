@@ -1,0 +1,62 @@
+/*
+ * Global design tokens + base reset.
+ * Colors, fonts and radii are lifted verbatim from the PSX design handoff so the
+ * app matches the mock pixel-close. Single source of truth for the whole UI.
+ */
+:root {
+  --accent: #0b6e4f;
+  --accent-dark: #06472f;
+  --accent-tint: #e7f1ec;
+  --gold: #c99a2e;
+  --ink: #132018;
+  --muted: #5b6b62;
+  --bg: #f6f5f0;
+  --card: #ffffff;
+  --line: rgba(19, 32, 24, 0.12);
+  --up: #15803d;
+  --down: #dc2626;
+
+  --font-display: "Sora", system-ui, sans-serif;
+  --font-body: "Public Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --shadow-accent: 0 3px 12px rgba(11, 110, 79, 0.28);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100%;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-dark);
+}
+
+button {
+  font-family: var(--font-body);
+}
+
+input {
+  font-family: var(--font-body);
+}
