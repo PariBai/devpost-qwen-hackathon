@@ -16,11 +16,12 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-psxmemory}
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      # Host 5433 -> container 5432, so it does NOT clash with any Postgres already
-      # running on your machine's 5432. (The api talks to the DB over the internal
-      # network as `db:5432`, unaffected by this host mapping.)
-      - "5433:5432"
+    # NOTE: the DB is NOT published to the host — the api reaches it internally as
+    # `db:5432` over the compose network, so no host port is needed and there's no
+    # clash with any Postgres already using 5432/5433 on this machine.
+    # To inspect the DB with an external client, uncomment and pick a FREE host port:
+    # ports:
+    #   - "5544:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-psxmemory}"]
       interval: 5s

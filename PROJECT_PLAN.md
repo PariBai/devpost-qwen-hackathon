@@ -67,7 +67,7 @@ Ordered: **deploy backend first → frontend → prompts+features → docs/video
 - [ ] 1.4 `GET /threads` and `GET /threads/{id}` so the frontend can list/resume conversations (uses the checkpointer).
 - [x] 1.5 `GET /me/preferences` endpoint (reads the store) — powers the memory panel.
 - [x] 1.6 CORS middleware (`*` for dev; tighten to the frontend URL before submission).
-- [~] 1.7 Local test: `/health` + `/me/preferences` verified via TestClient. **`/chat` end-to-end still to run with your DashScope key.**
+- [x] 1.7 Local test done: `/health`, `/me/preferences`, and `/chat` (SSE) all working end-to-end with Qwen.
 
 ### Phase 2 — Minimal auth (local, ~1–2 hrs)
 - [ ] 2.1 `users` table + migration/setup.
@@ -78,7 +78,7 @@ Ordered: **deploy backend first → frontend → prompts+features → docs/video
 ### Phase 3 — Dockerize (local, ~half day)
 - [x] 3.1 `Dockerfile` (python:3.12-slim, uvicorn `main:app`) + `.dockerignore`.
 - [x] 3.2 `docker-compose.yml`: `db` (postgres:16, `pgdata` volume, host 5433→5432, healthcheck) + `api` (builds Dockerfile, `DB_URL`→`db` service). `.env.example` documents `POSTGRES_USER/PASSWORD/DB`. Compose config validated.
-- [ ] 3.3 `docker compose up` end-to-end (needs: real `POSTGRES_*` creds in `.env`, api image build to pass). Confirm memory persists across a restart.
+- [x] 3.3 `docker compose up` end-to-end WORKING. Postgres persistence CONFIRMED — preferences survive across sessions/restarts. (Fixed: `store.py` now uses `AsyncPostgresStore`; removed `db` host port to avoid 5433 clash with the LAN Postgres.)
 
 ### Phase 4 — Deploy to Alibaba Cloud ECS (~1 day, guided each click)
 - [ ] 4.1 Create an ECS instance (Ubuntu, small size), open security-group ports (22 SSH, 80/443, the API port).

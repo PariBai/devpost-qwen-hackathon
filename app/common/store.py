@@ -2,18 +2,18 @@ import os
 import asyncio
 from typing import Optional
 from langgraph.store.memory import InMemoryStore
-from langgraph.store.postgres import PostgresStore  # type: ignore[import-not-found]
+from langgraph.store.postgres import AsyncPostgresStore  # type: ignore[import-not-found]
 from langgraph.store.base import BaseStore, IndexConfig
 from langchain.embeddings import init_embeddings
 
 _memory_store: Optional[InMemoryStore] = None
 
-_postgres_store: Optional[PostgresStore] = None
+_postgres_store: Optional[AsyncPostgresStore] = None
 _postgres_store_context: Optional[object] = None
 _postgres_store_lock = asyncio.Lock()
 
 
-async def get_postgres_store() -> PostgresStore:
+async def get_postgres_store() -> AsyncPostgresStore:
     """
     Get or create the global PostgreSQL store instance for long-term memory.
     The store persists memories across threads and sessions for the same user.
@@ -39,7 +39,7 @@ async def get_postgres_store() -> PostgresStore:
                     # If embeddings fail, fall back to non-semantic search
                     pass
 
-            _postgres_store_context = PostgresStore.from_conn_string(
+            _postgres_store_context = AsyncPostgresStore.from_conn_string(
                 db_url,
                 index=index_config,
             )
@@ -86,7 +86,7 @@ async def get_store(use_postgres: bool = True) -> BaseStore:
                      If False, use in-memory store (development/testing).
     
     Returns:
-        A configured store instance (PostgresStore or InMemoryStore)
+        A configured store instance (AsyncPostgresStore or InMemoryStore)
     """
     if use_postgres and (os.getenv("DB_URL") or os.getenv("DB_URL_LOCAL")):
         return await get_postgres_store()
