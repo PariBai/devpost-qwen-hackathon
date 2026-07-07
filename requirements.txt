@@ -38,6 +38,5 @@ uvicorn==0.49.0
 pydantic==2.13.4
 
 # --- Auth (Phase 2): minimal JWT login for a stable user_id ---
-passlib[bcrypt]                   # password hashing
+bcrypt                            # password hashing
 PyJWT                             # JWT issue/verify
-python-multipart                  # FastAPI form parsing for login

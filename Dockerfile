@@ -21,5 +21,5 @@ COPY . .
 
 EXPOSE 8086
 
-# Entrypoint lives at repo root (main.py -> `app` FastAPI instance).
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8086"]
+# Entrypoint: modular web layer in backend/ (backend.main:app).
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8086"]
