@@ -15,8 +15,23 @@ import {
   streamMessage,
 } from "../api/chats";
 
+// Local id for React keys. crypto.randomUUID() only exists in a secure context
+// (HTTPS or localhost); on plain http://<ip> it's undefined, so fall back to a
+// simple RFC4122-ish v4 generator. (These ids are UI-only — the server mints its
+// own ids for chats and history rows.)
 function newId() {
-  return crypto.randomUUID();
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    try {
+      return crypto.randomUUID();
+    } catch {
+      /* fall through */
+    }
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }
 
 // A chat_history row (one Q+A) becomes a user message + an assistant message.
