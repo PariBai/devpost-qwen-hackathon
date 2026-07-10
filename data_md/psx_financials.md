@@ -2,6 +2,8 @@
 
 # ABL - Allied Bank Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -25,6 +27,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # ABOT - Abbott Laboratories (Pakistan) Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -50,6 +54,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # AGP - AGP Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -74,6 +80,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # AHCL - Arif Habib Corporation Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -93,6 +101,8 @@ _No income statement records found._
 
 # AICL - Adamjee Insurance Company Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -111,6 +121,8 @@ _No income statement records found._
 ==================================================
 
 # AIRLINK - Air Link Communication Limited
+
+Shariah Compliant: Yes
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -136,6 +148,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # AKBL - Askari Bank Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -159,6 +173,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # APL - Attock Petroleum Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -184,6 +200,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # ATRL - Attock Refinery Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -207,6 +225,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # BAFL - Bank Alfalah Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -232,6 +252,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # BAHL - Bank AL Habib Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -255,6 +277,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # BNWM - Bannu Woollen Mills Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -280,6 +304,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # BOP - The Bank of Punjab
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -303,6 +329,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # BWCL - Bestway Cement Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -328,6 +356,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # CHCC - Cherat Cement Company Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -351,6 +381,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # CNERGY - Cnergyico PK Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -376,6 +408,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # COLG - Colgate-Palmolive (Pakistan) Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -399,6 +433,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # CPHL - Citi Pharma Ltd.
+
+Shariah Compliant: Yes
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -424,6 +460,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # DCR - Dolmen City REIT
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -447,6 +485,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # DGKC - D.G. Khan Cement Company Limited
+
+Shariah Compliant: Yes
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -472,6 +512,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # EFERT - Engro Fertilizers Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -495,6 +537,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # ENGROH - Engro Holdings Limited
+
+Shariah Compliant: Yes
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -520,6 +564,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # FABL - Faysal Bank Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -543,6 +589,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # FATIMA - Fatima Fertilizer Company Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -568,6 +616,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # FCCL - Fauji Cement Company Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -591,6 +641,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # FFC - Fauji Fertilizer Company Limited
+
+Shariah Compliant: Yes
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -616,6 +668,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # FFL - Fauji Foods Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -639,6 +693,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # FHAM - First Habib Modaraba
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -664,6 +720,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # GADT - Gadoon Textile Mills Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -687,6 +745,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # GAL - Ghandhara Automobiles Limited
+
+Shariah Compliant: Yes
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -712,6 +772,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # GHGL - Ghani Glass Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -735,6 +797,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # GHNI - Ghandhara Industries Limited
+
+Shariah Compliant: Yes
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -760,6 +824,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # GLAXO - GlaxoSmithKline Pakistan Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -783,6 +849,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # HALEON - Haleon Pakistan Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -808,6 +876,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # HBL - Habib Bank Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -831,6 +901,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # HGFA - HBL Growth Fund
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2021–2024)._
 
@@ -856,6 +928,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # HINOON - Highnoon Laboratories Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -879,6 +953,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # HMB - Habib Metropolitan Bank Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -904,6 +980,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # HUBC - The Hub Power Company Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -927,6 +1005,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # HUMNL - Hum Network Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -952,6 +1032,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # IBFL - Ibrahim Fibres Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -975,6 +1057,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # ILP - Interloop Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1000,6 +1084,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # INDU - Indus Motor Company Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1023,6 +1109,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # INIL - International Industries Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1048,6 +1136,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # ISL - International Steels Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1071,6 +1161,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # JDWS - JDW Sugar Mills Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1096,6 +1188,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # JVDC - Javedan Corporation Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1119,6 +1213,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # KAPCO - Kot Addu Power Company Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1144,6 +1240,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # KEL - K-Electric Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2021–2024)._
 
 ## Income Statement
@@ -1167,6 +1265,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # KOHC - Kohat Cement Company Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1192,6 +1292,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # KTML - Kohinoor Textile Mills Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1215,6 +1317,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # LCI - Lucky Core Industries Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1240,6 +1344,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # LOTCHEM - Lotte Chemical Pakistan Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1263,6 +1369,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # LUCK - Lucky Cement Limited
+
+Shariah Compliant: Yes
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1288,6 +1396,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # MARI - Mari Energies Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1311,6 +1421,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # MCB - MCB Bank Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1336,6 +1448,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # MEBL - Meezan Bank Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1359,6 +1473,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # MEHT - Mehmood Textile Mills Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1384,6 +1500,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # MLCF - Maple Leaf Cement Factory Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1407,6 +1525,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # MTL - Millat Tractors Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1432,6 +1552,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # MUREB - Murree Brewery Company Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1455,6 +1577,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # NATF - National Foods Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1480,6 +1604,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # NBP - National Bank of Pakistan
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1503,6 +1629,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # NESTLE - Nestle Pakistan Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1528,6 +1656,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # NML - Nishat Mills Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1551,6 +1681,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # NPL - Nishat Power Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1576,6 +1708,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # OGDC - Oil & Gas Development Company Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1599,6 +1733,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # PABC - Pakistan Aluminium Beverage Cans Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1624,6 +1760,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # PAEL - Pak Elektron Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1647,6 +1785,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # PAKT - Pakistan Tobacco Company Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1672,6 +1812,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # PGLC - Pak-Gulf Leasing Company Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1695,6 +1837,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # PIBTL - Pakistan International Bulk Terminal
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1720,6 +1864,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # PIOC - Pioneer Cement Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1743,6 +1889,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # PKGS - Packages Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1768,6 +1916,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # POL - Pakistan Oilfields Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1791,6 +1941,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # POWER - Power Cement Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1816,6 +1968,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # PPL - Pakistan Petroleum Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1839,6 +1993,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # PSEL - Pakistan Services Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2021–2024)._
 
@@ -1864,6 +2020,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # PSO - Pakistan State Oil Company Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1887,6 +2045,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # PSX - Pakistan Stock Exchange Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1912,6 +2072,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # PTC - Pakistan Telecommunication Company Ltd
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -1935,6 +2097,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # RMPL - Rafhan Maize Products Company Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -1960,6 +2124,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # SAZEW - Sazgar Engineering Works Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (Document–Title)._
 
 ## Income Statement
@@ -1981,6 +2147,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # SCBPL - Standard Chartered Bank (Pak) Ltd
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -2006,6 +2174,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # SEARL - The Searle Company Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -2029,6 +2199,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # SHFA - Shifa International Hospitals Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -2054,6 +2226,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # SNGP - Sui Northern Gas Pipelines Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -2077,6 +2251,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # SRVI - Service Industries Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -2102,6 +2278,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # SSGC - Sui Southern Gas Company Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -2125,6 +2303,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # SSOM - S.S.Oil Mills Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -2150,6 +2330,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # SYS - Systems Limited
 
+Shariah Compliant: Yes
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -2174,6 +2356,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # TGL - Tariq Glass Industries Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -2192,6 +2376,8 @@ _No income statement records found._
 ==================================================
 
 # THALL - Thal Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -2217,6 +2403,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # TPLRF1 - TPL REIT Fund I
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2024–2025)._
 
 ## Income Statement
@@ -2237,6 +2425,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # TRG - TRG Pakistan Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (Document–Title)._
 
@@ -2259,6 +2449,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 ==================================================
 
 # UBL - United Bank Limited
+
+Shariah Compliant: No
 
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
@@ -2284,6 +2476,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # UPFL - Unilever Pakistan Foods Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -2308,6 +2502,8 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 
 # YOUW - Yousaf Weaving Mills Limited
 
+Shariah Compliant: No
+
 _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs per share). Source: Capital Stake (2022–2025)._
 
 ## Income Statement
@@ -2329,4 +2525,3 @@ _Currency: Pakistani Rupees (Rs). All figures in thousands (000s) except EPS (Rs
 | 2022 | 7.84 | 1.80 | 31.58 | 0.63 |
 
 ==================================================
-

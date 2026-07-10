@@ -37,3 +37,9 @@ class SessionContext:
     # memory_writer_node prefers this as "the final answer"; on a single-agent turn
     # it stays "" and the writer falls back to the one non-empty agent output.
     synthesize_output: str = ""
+
+    # Preference changes applied THIS turn by memory_writer_node (the WRITE path),
+    # surfaced to the UI as the live "🧠 remembered / 🗑 forgot" feed. Each item:
+    # {"action": "upsert"|"delete", "key": str, "value": dict, "reason": str}.
+    # Left as a fresh [] per request; usually empty (most turns store nothing).
+    memory_ops: Optional[List[Dict[str, Any]]] = None

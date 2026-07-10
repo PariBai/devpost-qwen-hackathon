@@ -154,6 +154,25 @@ export function useChat() {
           onEvent: (evt) => {
             if (evt.type === "text") {
               updateLastAssistant((m) => ({ text: m.text + evt.content }));
+            } else if (evt.type === "memory") {
+              // Live "🧠 remembered / 🗑 forgot" feed — group this turn's ops into
+              // one memory entry that renders inline after the assistant answer.
+              const op = {
+                action: evt.action,
+                key: evt.key,
+                value: evt.value,
+                reason: evt.reason,
+              };
+              setMessages((prev) => {
+                const next = [...prev];
+                const last = next[next.length - 1];
+                if (last && last.role === "memory") {
+                  next[next.length - 1] = { ...last, ops: [...last.ops, op] };
+                } else {
+                  next.push({ id: newId(), role: "memory", ops: [op] });
+                }
+                return next;
+              });
             } else if (evt.type === "preferences") {
               setPreferences(evt.content || {});
             } else if (evt.type === "error") {

@@ -6,6 +6,7 @@ chat_id doubles as the LangGraph thread_id, so the agent keeps per-chat context 
 the checkpointer while chat_history stores the displayable Q+A for the UI.
 """
 
+import os
 import uuid
 import json
 import traceback
@@ -105,6 +106,22 @@ async def delete_chat(chat_id: str, user_id: str = Depends(get_current_user)):
         await conn.execute(
             "DELETE FROM chats WHERE id = %s AND user_id = %s", (chat_id, user_id)
         )
+
+    # The chats/chat_history rows are gone (chat_history cascades). The LangGraph
+    # checkpointer keeps this thread's agent state in ITS OWN tables (checkpoints,
+    # checkpoint_writes, checkpoint_blobs), keyed by thread_id == chat_id, with no
+    # FK to `chats` — so purge them here or they'd be orphaned. Best-effort: a
+    # cleanup failure must not fail the delete the user already asked for.
+    if os.getenv("DB_URL") or os.getenv("DB_URL_LOCAL"):
+        try:
+            from app.common.checkpointer import get_postgres_checkpointer
+
+            cp = await get_postgres_checkpointer()
+            if hasattr(cp, "adelete_thread"):
+                await cp.adelete_thread(chat_id)
+        except Exception as e:
+            print(f"[delete_chat] checkpoint cleanup skipped for {chat_id}: {e}")
+
     return {"deleted": chat_id}
 
 
@@ -181,6 +198,17 @@ async def send_message(
                 if piece:
                     full += piece
                     yield _sse({"type": "text", "content": piece})
+
+            # Live memory feed: what the agent remembered/forgot THIS turn (with the
+            # reason), so the UI can show "🧠 remembered / 🗑 forgot" as it happens.
+            for op in (context.memory_ops or []):
+                yield _sse({
+                    "type": "memory",
+                    "action": "remembered" if op.get("action") == "upsert" else "forgot",
+                    "key": op.get("key"),
+                    "value": op.get("value"),
+                    "reason": op.get("reason"),
+                })
 
             # Push updated preferences for the memory panel.
             try:

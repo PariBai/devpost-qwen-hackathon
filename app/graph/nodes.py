@@ -347,7 +347,10 @@ async def memory_writer_node(state: SessionState, runtime: Runtime[SessionContex
             structured_output=True,
         )
 
-        # (4) Apply each op. upsert overwrites the key; delete forgets it.
+        # (4) Apply each op. upsert overwrites the key; delete forgets it. Also record
+        # a serializable copy on the context so the API can stream a live memory feed
+        # ("🧠 remembered / 🗑 forgot") to the UI.
+        applied_ops = []
         for op in getattr(update, "ops", []) or []:
             if op.action == "upsert":
                 await memory_utils.save_preference(runtime.store, user_id, op.key, op.value)
@@ -355,6 +358,12 @@ async def memory_writer_node(state: SessionState, runtime: Runtime[SessionContex
             elif op.action == "delete":
                 await memory_utils.delete_preference(runtime.store, user_id, op.key)
                 print(f"[memory] forgot '{op.key}': {op.reason}")
+            else:
+                continue
+            applied_ops.append(
+                {"action": op.action, "key": op.key, "value": op.value, "reason": op.reason}
+            )
+        runtime.context.memory_ops = applied_ops
     except Exception as e:
         # Never fail the turn on a memory write - the user already has their answer.
         print(f"Warning: memory_writer failed (turn still succeeded): {e}")

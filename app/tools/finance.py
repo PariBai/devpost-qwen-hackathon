@@ -118,6 +118,47 @@ def list_financials() -> str:
     return "\n".join(lines)
 
 
+# Reads a company's Shariah flag written into the master markdown as a plain
+# metadata line under the H1:  Shariah Compliant: Yes  /  Shariah Compliant: No
+# (set by scripts/set_shariah_flags.py).
+_SHARIAH_RE = re.compile(r"^_?shariah compliant:\s*(yes|no)\b", re.IGNORECASE)
+_H1_RE = re.compile(r"^#\s+([A-Za-z0-9]+)\s+-\s+(.+?)\s*$")
+
+
+@tool
+def list_shariah_compliant() -> str:
+    """List the PSX companies flagged Shariah-compliant (for Islamic / halal investing).
+
+    Scans the financial database for each company's name + Shariah flag ONLY (not the
+    full financial blocks), so it's cheap. Use it to know the compliant universe before
+    recommending stocks to a user who wants Shariah-compliant stocks; the returned
+    tickers/names feed get_stock_snapshot (ticker) or read_financials (name).
+    """
+    md = _load_file()
+    if not md:
+        return f"Financial data file not found at '{DATA_FILE}'."
+
+    compliant = []
+    cur = None  # "TICKER - Name" of the block we're currently inside
+    for raw in md.splitlines():
+        line = raw.strip()
+        h = _H1_RE.match(line)
+        if h:
+            cur = f"{h.group(1).upper()} - {h.group(2).strip()}"
+            continue
+        m = _SHARIAH_RE.match(line)
+        if m and cur:
+            if m.group(1).lower() == "yes":
+                compliant.append(cur)
+            cur = None  # one flag per block
+
+    if not compliant:
+        return "No companies are flagged Shariah-compliant in the financial database."
+    lines = [f"Shariah-compliant PSX companies ({len(compliant)}):"]
+    lines += [f"- {c}" for c in compliant]
+    return "\n".join(lines)
+
+
 @tool
 def read_financials(company: str) -> str:
     """Read all financial data for a company.

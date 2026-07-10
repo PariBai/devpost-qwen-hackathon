@@ -7,7 +7,7 @@ from langchain.agents.middleware import (
 )
 from app.prompts.finance import FINANCE_SYSTEM_PROMPT
 from app.common.context import SessionContext
-from app.tools.finance import list_financials, read_financials, calc , get_stock_snapshot
+from app.tools.finance import list_financials, read_financials, calc , get_stock_snapshot, list_shariah_compliant
 from app.tools.memory import (
     get_user_preference,
     save_user_preference,
@@ -46,6 +46,7 @@ async def get_finance_agent():
             read_financials,
             calc,
             get_stock_snapshot,
+            list_shariah_compliant,
             get_user_preference,
             save_user_preference,
             delete_user_preference,
