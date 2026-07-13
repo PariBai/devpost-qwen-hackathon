@@ -40,6 +40,10 @@ services:
       # Inside the compose network the DB host is the service name `db`. This DB_URL
       # overrides any DB_URL_LOCAL in .env, so the app always uses the compose Postgres.
       DB_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-psxmemory}
+      CHARTS_DIR: /app/charts
+    volumes:
+      # Persist make_graph chart PNGs across rebuilds (nginx proxies /charts here).
+      - charts:/app/charts
     ports:
       - "8086:8086"   # host 8086 -> container 8086 (uvicorn --port 8086). Optional now
                       # that nginx proxies the API, but handy for direct API/debug access.
@@ -59,3 +63,4 @@ services:
 
 volumes:
   pgdata:
+  charts:

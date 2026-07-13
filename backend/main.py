@@ -5,6 +5,7 @@ Modular web layer (auth / chats / memory routers) over the pure agent logic in `
 Run:  uvicorn backend.main:app --host 0.0.0.0 --port 8086
 """
 
+import os
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
@@ -13,9 +14,14 @@ load_dotenv()
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from backend.db import init_tables
 from backend.routers import auth, chats, memory
+
+# Where make_graph writes chart PNGs; served read-only at /charts. Mounted as a Docker
+# volume in production so historical charts survive rebuilds.
+CHARTS_DIR = os.getenv("CHARTS_DIR", "charts")
 
 
 @asynccontextmanager
@@ -44,6 +50,11 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(chats.router)
 app.include_router(memory.router)
+
+# Serve generated chart images. Create the dir first so the mount never fails on a fresh
+# deploy (before any chart exists).
+os.makedirs(CHARTS_DIR, exist_ok=True)
+app.mount("/charts", StaticFiles(directory=CHARTS_DIR), name="charts")
 
 
 @app.get("/health")

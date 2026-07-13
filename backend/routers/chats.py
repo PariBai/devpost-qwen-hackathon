@@ -72,7 +72,7 @@ async def get_messages(chat_id: str, user_id: str = Depends(get_current_user)):
         if not await cur.fetchone():
             raise HTTPException(404, "chat not found")
         cur = await conn.execute(
-            "SELECT qid, question, answer, created_at FROM chat_history "
+            "SELECT qid, question, answer, attachments, created_at FROM chat_history "
             "WHERE chat_id = %s ORDER BY qid",
             (chat_id,),
         )
@@ -82,10 +82,23 @@ async def get_messages(chat_id: str, user_id: str = Depends(get_current_user)):
             "qid": r["qid"],
             "question": r["question"],
             "answer": r["answer"],
+            # attachments is a JSON array of chart image URLs (empty list if none).
+            "attachments": _load_attachments(r.get("attachments")),
             "created_at": r["created_at"].isoformat(),
         }
         for r in rows
     ]
+
+
+def _load_attachments(raw) -> list:
+    """Parse the stored attachments column (JSON array text) into a list, tolerantly."""
+    if not raw:
+        return []
+    try:
+        val = json.loads(raw)
+        return val if isinstance(val, list) else []
+    except Exception:
+        return []
 
 
 @router.patch("/chats/{chat_id}")
@@ -107,6 +120,16 @@ async def delete_chat(chat_id: str, user_id: str = Depends(get_current_user)):
             "DELETE FROM chats WHERE id = %s AND user_id = %s", (chat_id, user_id)
         )
 
+    # Remove this chat's chart images (charts/<user_id>/<chat_id>/...). Best-effort.
+    try:
+        import shutil
+        charts_dir = os.getenv("CHARTS_DIR", "charts")
+        chat_charts = os.path.join(charts_dir, user_id, chat_id)
+        if os.path.isdir(chat_charts):
+            shutil.rmtree(chat_charts, ignore_errors=True)
+    except Exception as e:
+        print(f"[delete_chat] chart cleanup skipped for {chat_id}: {e}")
+
     # The chats/chat_history rows are gone (chat_history cascades). The LangGraph
     # checkpointer keeps this thread's agent state in ITS OWN tables (checkpoints,
     # checkpoint_writes, checkpoint_blobs), keyed by thread_id == chat_id, with no
@@ -125,18 +148,26 @@ async def delete_chat(chat_id: str, user_id: str = Depends(get_current_user)):
     return {"deleted": chat_id}
 
 
-async def _save_qa(pool, chat_id: str, user_id: str, question: str, answer: str, title: str):
-    """Append one Q+A row (next qid) and keep the chat's title/updated_at current."""
+async def _next_qid(pool, chat_id: str) -> int:
+    """The qid the NEXT Q+A row will get. Computed before streaming so the make_graph
+    tool can name chart files with the real qid (charts/<uid>/<cid>/<qid>_chartN.png)."""
     async with pool.connection() as conn:
         cur = await conn.execute(
             "SELECT COALESCE(MAX(qid), 0) + 1 AS next FROM chat_history WHERE chat_id = %s",
             (chat_id,),
         )
-        qid = (await cur.fetchone())["next"]
+        return (await cur.fetchone())["next"]
+
+
+async def _save_qa(pool, chat_id: str, user_id: str, question: str, answer: str,
+                   title: str, qid: int, attachments: list):
+    """Append one Q+A row (at the pre-computed qid) and keep title/updated_at current."""
+    async with pool.connection() as conn:
         await conn.execute(
-            "INSERT INTO chat_history (id, chat_id, user_id, qid, question, answer) "
-            "VALUES (%s, %s, %s, %s, %s, %s)",
-            (str(uuid.uuid4()), chat_id, user_id, qid, question, answer),
+            "INSERT INTO chat_history (id, chat_id, user_id, qid, question, answer, attachments) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            (str(uuid.uuid4()), chat_id, user_id, qid, question, answer,
+             json.dumps(attachments or [])),
         )
         # First message sets the chat title from the question; always bump updated_at.
         if qid == 1 and (title or "").strip() in ("", "New Chat"):
@@ -168,6 +199,10 @@ async def send_message(
         raise HTTPException(404, "chat not found")
     title = row["title"]
 
+    # The qid this turn will become — computed up front so make_graph names chart files
+    # deterministically and _save_qa reuses the SAME qid (no double MAX+1 race).
+    qid = await _next_qid(pool, chat_id)
+
     async def gen():
         full = ""
         try:
@@ -177,6 +212,8 @@ async def send_message(
                 user_id=user_id,          # stable cross-session memory key
                 model=_get_model("qwen"),
                 agents=None,
+                qid=qid,                  # for make_graph chart file names
+                images=[],                # fresh per turn: last turn's charts never leak in
             )
             config = {"configurable": {"thread_id": chat_id}}
 
@@ -199,6 +236,17 @@ async def send_message(
                     full += piece
                     yield _sse({"type": "text", "content": piece})
 
+            # Charts produced this turn by make_graph (finance/compliance decided a visual
+            # helped). Stream them so the UI renders them right after the text answer.
+            images = context.images or []
+            if images:
+                yield _sse({"type": "images", "items": images})
+
+            # Recall trace (READ path): which stored memories were considered vs actually
+            # injected this turn — the visible proof of relevance-based recall.
+            if context.recalled:
+                yield _sse({"type": "recall", "items": context.recalled})
+
             # Live memory feed: what the agent remembered/forgot THIS turn (with the
             # reason), so the UI can show "🧠 remembered / 🗑 forgot" as it happens.
             for op in (context.memory_ops or []):
@@ -218,8 +266,8 @@ async def send_message(
             except Exception:
                 pass
 
-            # Persist the Q+A for UI re-rendering.
-            await _save_qa(pool, chat_id, user_id, body.message, full, title)
+            # Persist the Q+A (with any chart URLs) for UI re-rendering.
+            await _save_qa(pool, chat_id, user_id, body.message, full, title, qid, images)
             yield _sse({"type": "end"})
 
         except Exception as e:

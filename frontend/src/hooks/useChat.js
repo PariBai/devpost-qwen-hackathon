@@ -39,7 +39,12 @@ function rowsToMessages(rows) {
   const out = [];
   for (const r of rows) {
     out.push({ id: newId(), role: "user", text: r.question });
-    out.push({ id: newId(), role: "assistant", text: r.answer });
+    out.push({
+      id: newId(),
+      role: "assistant",
+      text: r.answer,
+      images: r.attachments || [], // chart image URLs saved with this turn
+    });
   }
   return out;
 }
@@ -154,6 +159,12 @@ export function useChat() {
           onEvent: (evt) => {
             if (evt.type === "text") {
               updateLastAssistant((m) => ({ text: m.text + evt.content }));
+            } else if (evt.type === "recall") {
+              // Which stored memories were considered vs injected this turn.
+              updateLastAssistant(() => ({ recall: evt.items || [] }));
+            } else if (evt.type === "images") {
+              // Charts make_graph produced this turn — render after the text answer.
+              updateLastAssistant(() => ({ images: evt.items || [] }));
             } else if (evt.type === "memory") {
               // Live "🧠 remembered / 🗑 forgot" feed — group this turn's ops into
               // one memory entry that renders inline after the assistant answer.

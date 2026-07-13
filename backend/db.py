@@ -68,6 +68,7 @@ _SCHEMA = [
         qid        INTEGER NOT NULL,
         question   TEXT NOT NULL,
         answer     TEXT NOT NULL,
+        attachments TEXT NOT NULL DEFAULT '[]',
         created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )
     """,
@@ -82,6 +83,9 @@ _MIGRATIONS = [
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS full_name TEXT",
     "ALTER TABLE users ALTER COLUMN username DROP NOT NULL",
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email)",
+    # chat_history gained an attachments column (JSON array of chart image URLs) for the
+    # make_graph feature; add it to already-deployed databases.
+    "ALTER TABLE chat_history ADD COLUMN IF NOT EXISTS attachments TEXT NOT NULL DEFAULT '[]'",
 ]
 
 

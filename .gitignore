@@ -37,3 +37,6 @@ node_modules/
 .next/
 dist/
 build/
+
+# --- Generated chart images (make_graph); served from a volume/StaticFiles ---
+charts/

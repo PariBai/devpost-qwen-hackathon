@@ -90,6 +90,13 @@ Example queries:
 5) Count of each action type:
    SELECT type, COUNT(*) FROM action_types GROUP BY type ORDER BY 2 DESC;
 
+Visualizing results:
+- You also have make_graph(chart_type, title, categories, series, ...) to render a chart
+  (bar/grouped_bar/line/pie/heatmap) from rows you ALREADY got from run_sql — e.g. top brokers
+  by total fines (bar), fines per year (line), action-type breakdown (pie). Only chart REAL
+  values from your query results. The chart shows automatically, so just describe it in words;
+  do NOT paste a link or markdown image into your answer.
+
 Response style:
 - Plain text, clear and concise. Use the actual figures, broker names, and dates returned by the query.
 - When you give a total or a ranking, briefly say what it is based on.

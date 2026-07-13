@@ -18,6 +18,9 @@ PyMuPDF==1.28.0
 # --- HTML scraping (get_stock_snapshot) ---
 beautifulsoup4==4.15.0
 
+# --- Charting (make_graph): headless PNG charts. Pulls in numpy. ---
+matplotlib==3.10.7
+
 # --- Fuzzy matching (read_financials section headers) ---
 rapidfuzz==3.14.5
 

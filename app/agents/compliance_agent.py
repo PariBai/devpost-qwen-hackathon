@@ -8,6 +8,7 @@ from langchain.agents.middleware import (
 from app.prompts.compliance import COMPLIANCE_SYSTEM_PROMPT
 from app.common.context import SessionContext
 from app.tools.compliance import run_sql
+from app.tools.charts import make_graph
 from app.tools.memory import (
     get_user_preference,
     save_user_preference,
@@ -45,6 +46,7 @@ async def get_compliance_agent():
         system_prompt = COMPLIANCE_SYSTEM_PROMPT,
         tools = [
             run_sql,
+            make_graph,
             get_user_preference,
             save_user_preference,
             delete_user_preference,

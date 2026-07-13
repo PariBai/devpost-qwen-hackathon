@@ -27,6 +27,9 @@ export function deleteChat(chatId, token) {
 /*
  * Stream one message. Calls `onEvent` for each SSE payload:
  *   { type: "text", content }         -> a streamed answer chunk
+ *   { type: "images", items }         -> chart image URLs from make_graph (after the text)
+ *   { type: "recall", items }         -> which memories were recalled this turn
+ *   { type: "memory", ... }           -> a live remembered/forgot op
  *   { type: "preferences", content }  -> updated memory after the turn
  *   { type: "error", content }        -> backend error
  *   { type: "end" }                   -> stream finished

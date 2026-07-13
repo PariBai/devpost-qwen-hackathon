@@ -242,15 +242,16 @@
   display: flex;
   flex: 1;
   min-height: 0;
-  max-width: 1280px;
   width: 100%;
-  margin: 0 auto;
+  /* Full-width: sidebar sits flush against the extreme left edge instead of
+   * floating toward the middle inside a centered, capped shell. */
+  margin: 0;
   position: relative;
 }
 
 /* ---------- Sidebar ---------- */
 .sidebar {
-  width: 264px;
+  width: 300px;
   flex: none;
   border-right: 1px solid var(--line);
   background: var(--card);
@@ -419,7 +420,7 @@
 }
 
 .messages__inner {
-  max-width: 760px;
+  max-width: 900px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -546,6 +547,36 @@
   font-size: 14.5px;
   line-height: 1.6;
   color: var(--ink);
+}
+
+/* Charts rendered by make_graph, shown after the assistant's text answer. */
+.msg-charts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.msg-chart {
+  display: block;
+  max-width: 460px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(19, 32, 24, 0.06);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.msg-chart:hover {
+  box-shadow: 0 4px 14px rgba(19, 32, 24, 0.12);
+  transform: translateY(-1px);
+}
+
+.msg-chart img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .msg-assistant__error {
@@ -708,6 +739,39 @@
   animation: blink 1.1s infinite;
 }
 
+/* Recall chip (🔎 relevance-based recall) — under an assistant answer */
+.recall {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+
+.recall__label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.recall__keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.recall__pill {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-dark);
+  background: var(--accent-tint);
+  border-radius: 20px;
+  padding: 2px 9px;
+  font-family: var(--font-mono);
+}
+
 /* Live memory feed card (🧠 remembered / 🗑 forgot) */
 @keyframes mem-in {
   from {
@@ -835,7 +899,7 @@
 }
 
 .composer__inner {
-  max-width: 760px;
+  max-width: 900px;
   margin: 0 auto;
 }
 

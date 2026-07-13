@@ -19,6 +19,18 @@ class SessionContext:
     usage: Optional[Dict[str, Any]] = None
     agents : List[str] = None  # List of agents invoked for this session (for tracing/debugging)
 
+    # The 1-based id of the Q+A row this turn will become, computed by the API BEFORE
+    # streaming so the make_graph tool can name chart files deterministically
+    # (charts/<user_id>/<chat_id>/<qid>_chartN.png). Set fresh per request.
+    qid: Optional[int] = None
+
+    # Chart image URLs produced THIS turn by the make_graph tool (the finance/compliance
+    # agents call it when a visual beats text). Each entry is a public path like
+    # "/charts/<uid>/<cid>/<qid>_chart1.png". Started as [] per request so a previous
+    # turn's charts never leak in; after the answer streams the API persists these on the
+    # chat_history row (attachments) and streams an "images" event so the UI renders them.
+    images: Optional[List[str]] = None
+
     # User's long-term preferences, PRELOADED once per turn in init_node (one store
     # read) and injected into each agent's system prompt by the dynamic_model
     # middleware. This is the READ path: agents apply preferences with no extra tool
@@ -43,3 +55,10 @@ class SessionContext:
     # {"action": "upsert"|"delete", "key": str, "value": dict, "reason": str}.
     # Left as a fresh [] per request; usually empty (most turns store nothing).
     memory_ops: Optional[List[Dict[str, Any]]] = None
+
+    # Recall trace for THIS turn (the READ path): which stored preferences were
+    # considered and which were injected into the prompt, with similarity scores.
+    # Surfaced to the UI as a "🔎 recalled N of M memories" chip — the visible proof
+    # of relevance-based recall within a limited context. Each item:
+    # {"key": str, "score": float|None, "kept": bool, "basis": str}.
+    recalled: Optional[List[Dict[str, Any]]] = None

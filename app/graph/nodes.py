@@ -16,6 +16,7 @@ from app.agents.compliance_agent import get_compliance_agent
 from app.agents.finance_agent import get_finance_agent
 from app.common.utils import filter_agent_messages
 from app.common import memory as memory_utils
+from app.common.retrieval import select_relevant
 # from langchain_core.callbacks import UsageMetadataCallbackHandler
 
 # ---------------------------------------------------------------------------
@@ -93,18 +94,23 @@ async def init_node(state: SessionState, runtime: Runtime[SessionContext]) -> Co
     query = state["messages"][-1].content
     history = _render_history(state["messages"])
 
-    # READ path: fetch the user's preferences once per turn and stash them on the
-    # context. The dynamic_model middleware in each agent injects these into the
-    # system prompt, so preferences shape every answer without an extra tool call.
+    # READ path: fetch the user's preferences once per turn, then RECALL only the ones
+    # relevant to this query (always-on constraints + top-K semantic matches) instead of
+    # dumping them all. The dynamic_model middleware injects the SELECTED subset into each
+    # agent's system prompt, so the prompt stays small and focused as memory grows.
     if runtime.store is not None:
         try:
             prefs = await memory_utils.list_preferences(runtime.store, runtime.context.user_id)
-            runtime.context.user_preferences = {p.key: p.value for p in prefs}
+            all_prefs = {p.key: p.value for p in prefs}
+            selected, recall_trace = await select_relevant(query, all_prefs)
+            runtime.context.user_preferences = selected
+            runtime.context.recalled = recall_trace
         except Exception as e:
             # Preferences are an enhancement, not a hard dependency - never fail the
             # turn if the store read hiccups.
             print(f"Warning: failed to preload preferences: {e}")
             runtime.context.user_preferences = {}
+            runtime.context.recalled = []
 
     decision = _llm_call(
         system_prompt=ROUTER_SYSTEM_PROMPT,
