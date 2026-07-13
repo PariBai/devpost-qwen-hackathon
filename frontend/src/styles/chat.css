@@ -420,7 +420,7 @@
 }
 
 .messages__inner {
-  max-width: 900px;
+  max-width: 1180px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -517,8 +517,8 @@
   color: #fff;
   padding: 12px 16px;
   border-radius: 16px 16px 4px 16px;
-  font-size: 14.5px;
-  line-height: 1.5;
+  font-size: 16.5px;
+  line-height: 1.55;
   box-shadow: 0 2px 8px rgba(11, 110, 79, 0.24);
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -544,8 +544,8 @@
 .msg-assistant__body {
   flex: 1;
   min-width: 0;
-  font-size: 14.5px;
-  line-height: 1.6;
+  font-size: 16.5px;
+  line-height: 1.65;
   color: var(--ink);
 }
 
@@ -559,7 +559,8 @@
 
 .msg-chart {
   display: block;
-  max-width: 460px;
+  max-width: 640px;
+  width: 100%;
   border: 1px solid var(--line);
   border-radius: 12px;
   overflow: hidden;
@@ -698,7 +699,7 @@
 .md table {
   border-collapse: collapse;
   width: 100%;
-  font-size: 13px;
+  font-size: 14.5px;
 }
 .md th,
 .md td {
@@ -899,7 +900,7 @@
 }
 
 .composer__inner {
-  max-width: 900px;
+  max-width: 1180px;
   margin: 0 auto;
 }
 
