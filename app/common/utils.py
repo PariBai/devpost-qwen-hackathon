@@ -73,6 +73,66 @@ def _get_model(
     return model
 
 
+def _coerce_to_schema(raw, schema):
+    """Best-effort recovery when a model emits valid JSON in the WRONG SHAPE for
+    `schema`.
+
+    Small / non-frontier models (qwen-flash, qwen2.5-omni-7b, ...) frequently
+    "see through" a single-field wrapper and return the inner value directly —
+    e.g. `[]` or `[{...}]` instead of `{"ops": [...]}` for PreferenceUpdate, or a
+    bare list instead of `{"agents": [...]}` for RouteDecision. Others wrap the
+    JSON in prose / ```code fences``` or an extra `{"result": ...}` envelope.
+
+    This takes the raw model message (from with_structured_output(include_raw=True))
+    and tries to bend whatever JSON it produced back into `schema`. Model-agnostic,
+    so it keeps working as you swap QWEN_MODEL. Returns a schema instance or None.
+    """
+    import json, re
+
+    # 1) Collect candidate JSON payloads from the raw message.
+    candidates = []
+    if raw is not None:
+        # function-calling mode: the (mis-shaped) data is in the tool-call args.
+        for tc in (getattr(raw, "tool_calls", None) or []):
+            args = tc.get("args") if isinstance(tc, dict) else getattr(tc, "args", None)
+            if args is not None:
+                candidates.append(args)
+        # json / text mode: parse the message content, stripping code fences.
+        content = getattr(raw, "content", None)
+        if isinstance(content, str) and content.strip():
+            text = content.strip()
+            m = re.search(r"```(?:json)?\s*(.*?)```", text, re.DOTALL)
+            if m:
+                text = m.group(1).strip()
+            try:
+                candidates.append(json.loads(text))
+            except Exception:
+                pass
+
+    # 2) Try to coerce each candidate into the schema.
+    fields = getattr(schema, "model_fields", {}) or {}
+    for data in candidates:
+        try:
+            if isinstance(data, dict):
+                try:
+                    return schema(**data)
+                except Exception:
+                    # Unwrap a single-key envelope: {"result": [...]} / {"Schema": {...}}
+                    if len(data) == 1:
+                        inner = next(iter(data.values()))
+                        if isinstance(inner, dict):
+                            return schema(**inner)
+                        if isinstance(inner, list) and len(fields) == 1:
+                            return schema(**{next(iter(fields)): inner})
+                    raise
+            if isinstance(data, list) and len(fields) == 1:
+                # Bare list for a single-field wrapper -> wrap it under that field.
+                return schema(**{next(iter(fields)): data})
+        except Exception:
+            continue
+    return None
+
+
 def _llm_call(
     system_prompt: str,
     user_prompt_template: str,
@@ -94,8 +154,24 @@ def _llm_call(
         if not structured_output:
             response = llm.invoke(messages)
         else:
-            structured_llm = llm.with_structured_output(schema)
-            response = structured_llm.invoke(messages)
+            # include_raw=True: a schema-validation failure no longer RAISES; instead we
+            # get {"raw", "parsed", "parsing_error"} and can recover a mis-shaped reply
+            # (e.g. a weak model returning [] instead of {"ops": []}) instead of losing
+            # the whole call. Keeps memory writes / routing working across any model.
+            structured_llm = llm.with_structured_output(schema, include_raw=True)
+            result = structured_llm.invoke(messages)
+            response = result.get("parsed") if isinstance(result, dict) else result
+            if response is None:
+                response = _coerce_to_schema(
+                    result.get("raw") if isinstance(result, dict) else None, schema
+                )
+                if response is not None:
+                    print(f"[_llm_call] recovered mis-shaped structured output for "
+                          f"{getattr(schema, '__name__', schema)}")
+                else:
+                    err = result.get("parsing_error") if isinstance(result, dict) else None
+                    print(f"[_llm_call] structured output unrecoverable for "
+                          f"{getattr(schema, '__name__', schema)}: {err}")
 
     except Exception as e:
         print(f'Error during LLM call: {e}')

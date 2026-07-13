@@ -3,7 +3,8 @@ from langchain.agents import create_agent
 from langchain.agents.middleware import (
     wrap_model_call,
     ModelRequest,
-    ModelResponse
+    ModelResponse,
+    ToolCallLimitMiddleware
 )
 from app.prompts.compliance import COMPLIANCE_SYSTEM_PROMPT
 from app.common.context import SessionContext
@@ -54,5 +55,9 @@ async def get_compliance_agent():
         context_schema = SessionContext,
         middleware = [
             dynamic_model,
+            ToolCallLimitMiddleware(
+                tool_name = "run_sql",
+                run_limit = 4,
+            ),
         ]
     )
