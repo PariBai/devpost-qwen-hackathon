@@ -49,13 +49,14 @@ def _get_model(
         # unless the Qwen provider is actually used.
         from langchain_openai import ChatOpenAI
 
+        model_name = os.getenv("QWEN_MODEL", "qwen-plus")
         kwargs = {
             "api_key": os.getenv("DASHSCOPE_API_KEY"),
             "base_url": os.getenv(
                 "DASHSCOPE_BASE_URL",
                 "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
             ),
-            "model": os.getenv("QWEN_MODEL", "qwen-plus"),
+            "model": model_name,
             "temperature": 0,
             "max_retries": 2,
             "timeout": None,
@@ -64,6 +65,16 @@ def _get_model(
             kwargs["temperature"] = temp
         if max_tokens is not None:
             kwargs["max_tokens"] = max_tokens
+
+        # Qwen3 "deep thinking" models (qwen3*, qwen3.x-plus/max, qwq) reason before
+        # answering by default -> slow + costly. Disable it unless ENABLE_THINKING is
+        # set. Only send `enable_thinking` to models that accept it, so switching back
+        # to a non-thinking model (qwen2.5-*, qwen-plus, ...) doesn't error out.
+        low = model_name.lower()
+        is_thinking_model = ("qwen3" in low) or low.startswith("qwq")
+        if is_thinking_model:
+            enable = os.getenv("ENABLE_THINKING", "false").lower() in ("1", "true", "yes")
+            kwargs["extra_body"] = {"enable_thinking": enable}
 
         model = ChatOpenAI(**kwargs)
 
@@ -133,6 +144,55 @@ def _coerce_to_schema(raw, schema):
     return None
 
 
+def _invoke_structured(llm, schema, messages):
+    """Robust structured-output call that works across Qwen models.
+
+    Handles the two failure modes different DashScope/Qwen models throw:
+      - Tool/function calling FIRST — Qwen supports it well, and it avoids DashScope's
+        json_object rule ("messages must contain the word 'json'") that breaks the
+        json-mode path on some models.
+      - json_mode FALLBACK (with the word 'json' injected) for any model that doesn't
+        support tool calling.
+    In both paths, include_raw=True means a schema-validation failure doesn't RAISE; we
+    get the raw reply and bend a mis-shaped payload (e.g. `[]` instead of `{"ops": []}`)
+    back into `schema` via _coerce_to_schema. Returns a schema instance or None (callers
+    already treat None as "no result" and fall back safely).
+    """
+    last_err = None
+    for method in ("function_calling", "json_mode"):
+        msgs = messages
+        if method == "json_mode":
+            # DashScope requires the literal word 'json' somewhere in the prompt to use
+            # json_object response_format — inject it into the system message.
+            sys0 = messages[0]
+            patched = SystemMessage(
+                content=f"{sys0.content}\n\nRespond with a single valid json object only."
+            )
+            msgs = [patched] + list(messages[1:])
+        try:
+            structured = llm.with_structured_output(
+                schema, method=method, include_raw=True
+            )
+            result = structured.invoke(msgs)
+            parsed = result.get("parsed") if isinstance(result, dict) else result
+            if parsed is None:
+                raw = result.get("raw") if isinstance(result, dict) else None
+                parsed = _coerce_to_schema(raw, schema)
+                if parsed is not None:
+                    print(f"[_llm_call] recovered mis-shaped output for "
+                          f"{getattr(schema, '__name__', schema)} (method={method})")
+            if parsed is not None:
+                return parsed
+        except Exception as e:
+            last_err = e
+            print(f"[_llm_call] structured method={method} failed: {e}")
+            continue
+    if last_err is not None:
+        print(f"[_llm_call] structured output unrecoverable for "
+              f"{getattr(schema, '__name__', schema)}: {last_err}")
+    return None
+
+
 def _llm_call(
     system_prompt: str,
     user_prompt_template: str,
@@ -154,24 +214,7 @@ def _llm_call(
         if not structured_output:
             response = llm.invoke(messages)
         else:
-            # include_raw=True: a schema-validation failure no longer RAISES; instead we
-            # get {"raw", "parsed", "parsing_error"} and can recover a mis-shaped reply
-            # (e.g. a weak model returning [] instead of {"ops": []}) instead of losing
-            # the whole call. Keeps memory writes / routing working across any model.
-            structured_llm = llm.with_structured_output(schema, include_raw=True)
-            result = structured_llm.invoke(messages)
-            response = result.get("parsed") if isinstance(result, dict) else result
-            if response is None:
-                response = _coerce_to_schema(
-                    result.get("raw") if isinstance(result, dict) else None, schema
-                )
-                if response is not None:
-                    print(f"[_llm_call] recovered mis-shaped structured output for "
-                          f"{getattr(schema, '__name__', schema)}")
-                else:
-                    err = result.get("parsing_error") if isinstance(result, dict) else None
-                    print(f"[_llm_call] structured output unrecoverable for "
-                          f"{getattr(schema, '__name__', schema)}: {err}")
+            response = _invoke_structured(llm, schema, messages)
 
     except Exception as e:
         print(f'Error during LLM call: {e}')
