@@ -517,7 +517,7 @@
   color: #fff;
   padding: 12px 16px;
   border-radius: 16px 16px 4px 16px;
-  font-size: 23px;
+  font-size: 19px;
   line-height: 1.85;
   box-shadow: 0 2px 8px rgba(11, 110, 79, 0.24);
   white-space: pre-wrap;
@@ -544,7 +544,7 @@
 .msg-assistant__body {
   flex: 1;
   min-width: 0;
-  font-size: 23px;
+  font-size: 19px;
   line-height: 1.85;
   color: var(--ink);
 }
