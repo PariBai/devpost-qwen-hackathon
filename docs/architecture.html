@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Hikmat PSX — System Architecture</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #ffffff; }
+  .wrap { width: 1280px; margin: 0 auto; padding: 8px; }
+  .hint {
+    width: 1280px; margin: 6px auto 0; font: 13px/1.5 -apple-system, Segoe UI, Roboto, sans-serif;
+    color: #6b7d74; text-align: center;
+  }
+  @media print { .hint { display: none; } }
+  svg { display: block; }
+  text { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<svg viewBox="0 0 1280 1040" width="1280" height="1040" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3f5a4e"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#0b6e4f"/>
+    </marker>
+    <marker id="arrowOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c26a00"/>
+    </marker>
+  </defs>
+
+  <style>
+    .box   { rx: 11; ry: 11; stroke-width: 1.6; }
+    .fill-w { fill: #ffffff; }
+    .fill-t { fill: #e7f1ec; }
+    .stroke-g { stroke: #0b6e4f; }
+    .stroke-l { stroke: #cfe0d8; }
+    .title { font-size: 30px; font-weight: 800; fill: #14241c; }
+    .sub   { font-size: 15px; font-weight: 600; fill: #5a6d63; }
+    .lbl   { font-size: 16px; font-weight: 700; fill: #14241c; }
+    .lbl2  { font-size: 13.5px; font-weight: 500; fill: #47584f; }
+    .cap   { font-size: 12.5px; font-weight: 600; fill: #0b6e4f; }
+    .cap-o { font-size: 12.5px; font-weight: 600; fill: #c26a00; }
+    .zone  { font-size: 15px; font-weight: 800; letter-spacing: .04em; }
+    .flow  { stroke: #3f5a4e; stroke-width: 2; fill: none; }
+    .read  { stroke: #0b6e4f; stroke-width: 2; fill: none; stroke-dasharray: 6 5; }
+    .write { stroke: #0b6e4f; stroke-width: 2; fill: none; }
+    .model { stroke: #c26a00; stroke-width: 2; fill: none; }
+  </style>
+
+  <!-- Header -->
+  <text x="50" y="52" class="title">Hikmat PSX — System Architecture</text>
+  <text x="52" y="80" class="sub">Track 1: MemoryAgent · Qwen on Alibaba Cloud DashScope · LangGraph multi-agent</text>
+
+  <!-- User -->
+  <rect x="540" y="108" width="200" height="54" class="box fill-w stroke-g"/>
+  <text x="640" y="140" text-anchor="middle" class="lbl">User (browser)</text>
+
+  <!-- Alibaba Cloud ECS boundary -->
+  <rect x="50" y="196" width="1180" height="820" rx="16" ry="16" fill="#f4f9f6" stroke="#0b6e4f" stroke-width="1.6" stroke-dasharray="9 7"/>
+  <text x="72" y="226" class="zone" fill="#0b6e4f">Alibaba Cloud ECS · Docker Compose</text>
+
+  <!-- nginx -->
+  <rect x="500" y="252" width="280" height="62" class="box fill-t stroke-g"/>
+  <text x="640" y="279" text-anchor="middle" class="lbl">nginx (web)</text>
+  <text x="640" y="300" text-anchor="middle" class="lbl2">serves React SPA · proxies API (:80)</text>
+
+  <!-- FastAPI -->
+  <rect x="500" y="352" width="280" height="62" class="box fill-t stroke-g"/>
+  <text x="640" y="379" text-anchor="middle" class="lbl">FastAPI backend</text>
+  <text x="640" y="400" text-anchor="middle" class="lbl2">SSE streaming · JWT auth</text>
+
+  <!-- LangGraph container -->
+  <rect x="88" y="452" width="740" height="524" rx="14" ry="14" fill="#ffffff" stroke="#0b6e4f" stroke-width="1.6"/>
+  <text x="108" y="480" class="zone" fill="#14241c">LangGraph agent graph</text>
+
+  <!-- Router -->
+  <rect x="300" y="500" width="316" height="60" class="box fill-t stroke-g"/>
+  <text x="458" y="526" text-anchor="middle" class="lbl">Router / init node</text>
+  <text x="458" y="547" text-anchor="middle" class="lbl2">classifies query · recalls relevant memories</text>
+
+  <!-- Finance agent -->
+  <rect x="120" y="606" width="250" height="58" class="box fill-w stroke-l"/>
+  <text x="245" y="633" text-anchor="middle" class="lbl">Finance agent</text>
+  <text x="245" y="652" text-anchor="middle" class="lbl2">summaries · charts</text>
+
+  <!-- Compliance agent -->
+  <rect x="470" y="606" width="250" height="58" class="box fill-w stroke-l"/>
+  <text x="595" y="633" text-anchor="middle" class="lbl">Compliance agent</text>
+  <text x="595" y="652" text-anchor="middle" class="lbl2">SQL over PSX data</text>
+
+  <!-- Synthesize -->
+  <rect x="308" y="710" width="250" height="56" class="box fill-w stroke-l"/>
+  <text x="433" y="744" text-anchor="middle" class="lbl">Synthesize answers</text>
+
+  <!-- Memory writer -->
+  <rect x="270" y="812" width="326" height="66" class="box fill-t stroke-g"/>
+  <text x="433" y="840" text-anchor="middle" class="lbl">Memory writer (reflection)</text>
+  <text x="433" y="861" text-anchor="middle" class="lbl2">remember / forget · upsert &amp; delete</text>
+
+  <text x="110" y="922" class="lbl2">Reflection runs after the answer streams — adds zero latency.</text>
+  <text x="110" y="946" class="lbl2">Recall injects only always-on constraints + top-K semantic matches.</text>
+
+  <!-- PostgreSQL -->
+  <rect x="892" y="452" width="300" height="316" rx="14" ry="14" fill="#ffffff" stroke="#334e78" stroke-width="1.6"/>
+  <text x="912" y="480" class="zone" fill="#334e78">PostgreSQL 16</text>
+
+  <rect x="912" y="500" width="260" height="70" class="box fill-w" stroke="#334e78" stroke-width="1.4"/>
+  <text x="1042" y="527" text-anchor="middle" class="lbl">Long-term memory</text>
+  <text x="1042" y="548" text-anchor="middle" class="lbl2">preferences · keyed by user_id</text>
+  <text x="1042" y="564" text-anchor="middle" class="cap">cross-session</text>
+
+  <rect x="912" y="586" width="260" height="70" class="box fill-w" stroke="#334e78" stroke-width="1.4"/>
+  <text x="1042" y="613" text-anchor="middle" class="lbl">Session checkpointer</text>
+  <text x="1042" y="634" text-anchor="middle" class="lbl2">per-thread state · sliding window</text>
+  <text x="1042" y="650" text-anchor="middle" class="cap">short-term</text>
+
+  <rect x="912" y="672" width="260" height="70" class="box fill-w" stroke="#334e78" stroke-width="1.4"/>
+  <text x="1042" y="699" text-anchor="middle" class="lbl">Chat history</text>
+  <text x="1042" y="720" text-anchor="middle" class="lbl2">Q&amp;A · keyed by chat_id + qid</text>
+
+  <!-- Qwen / DashScope -->
+  <rect x="892" y="812" width="300" height="120" rx="14" ry="14" fill="#fff3e0" stroke="#c26a00" stroke-width="1.8"/>
+  <text x="1042" y="852" text-anchor="middle" class="lbl" fill="#8a4b00">Qwen models</text>
+  <text x="1042" y="877" text-anchor="middle" class="lbl2" fill="#8a4b00">Alibaba Cloud DashScope</text>
+  <text x="1042" y="900" text-anchor="middle" class="lbl2" fill="#8a4b00">chat + embeddings · quota fail-over</text>
+
+  <!-- ===================== Arrows ===================== -->
+  <!-- User -> nginx -->
+  <line x1="640" y1="162" x2="640" y2="250" class="flow" marker-end="url(#arrow)"/>
+  <!-- nginx -> FastAPI -->
+  <line x1="640" y1="314" x2="640" y2="350" class="flow" marker-end="url(#arrow)"/>
+  <!-- FastAPI -> Router -->
+  <path d="M640,414 L640,470 L510,470 L470,500" class="flow" marker-end="url(#arrow)"/>
+
+  <!-- Router -> Finance -->
+  <path d="M380,560 L300,585 L270,606" class="flow" marker-end="url(#arrow)"/>
+  <!-- Router -> Compliance -->
+  <path d="M540,560 L610,585 L610,606" class="flow" marker-end="url(#arrow)"/>
+  <!-- Finance -> Synthesize -->
+  <path d="M270,664 L330,700 L360,710" class="flow" marker-end="url(#arrow)"/>
+  <!-- Compliance -> Synthesize -->
+  <path d="M595,664 L520,700 L500,710" class="flow" marker-end="url(#arrow)"/>
+  <!-- Synthesize -> Memory writer -->
+  <line x1="433" y1="766" x2="433" y2="812" class="flow" marker-end="url(#arrow)"/>
+
+  <!-- Router -> Long-term (recall / READ) -->
+  <path d="M616,524 L760,524 L760,528 L912,528" class="read" marker-end="url(#arrowGreen)"/>
+  <text x="700" y="516" text-anchor="middle" class="cap">recall (READ)</text>
+
+  <!-- Memory writer -> Long-term (write) -->
+  <path d="M596,838 L850,838 L850,552 L912,552" class="write" marker-end="url(#arrowGreen)"/>
+  <text x="866" y="620" text-anchor="start" class="cap">write</text>
+  <text x="866" y="638" text-anchor="start" class="cap">upsert / delete</text>
+
+  <!-- Graph <-> checkpointer -->
+  <line x1="828" y1="620" x2="892" y2="620" class="write" marker-start="url(#arrowGreen)" marker-end="url(#arrowGreen)"/>
+  <text x="860" y="608" text-anchor="middle" class="cap">state</text>
+
+  <!-- Graph -> Qwen (inference + embeddings) -->
+  <path d="M596,855 L740,855 L740,872 L892,872" class="model" marker-end="url(#arrowOrange)"/>
+  <text x="742" y="847" text-anchor="middle" class="cap-o">Qwen inference + embeddings</text>
+
+  <!-- Legend -->
+  <g>
+    <line x1="90" y1="1000" x2="130" y2="1000" class="flow"/>
+    <text x="138" y="1005" class="lbl2">request / turn flow</text>
+    <line x1="300" y1="1000" x2="340" y2="1000" class="read"/>
+    <text x="348" y="1005" class="lbl2">memory read (recall)</text>
+    <line x1="520" y1="1000" x2="560" y2="1000" class="write"/>
+    <text x="568" y="1005" class="lbl2">memory write / state</text>
+    <line x1="760" y1="1000" x2="800" y2="1000" class="model"/>
+    <text x="808" y="1005" class="lbl2">Qwen model calls</text>
+  </g>
+</svg>
+</div>
+<p class="hint">To export: press <b>Ctrl&nbsp;+&nbsp;P</b> → Save as PDF (upload the PDF), or take a screenshot of the diagram and save as PNG. Both formats are accepted by Devpost.</p>
+</body>
+</html>
