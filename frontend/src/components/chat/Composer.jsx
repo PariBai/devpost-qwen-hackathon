@@ -6,7 +6,6 @@
 import { useRef, useState } from "react";
 import { PaperclipIcon, MicIcon, SendIcon } from "../icons";
 
-const CHIPS = ["Sector heatmap", "Explain KMI-30", "Set a price alert"];
 const MAX_H = 160;
 
 export default function Composer({ onSend, sending }) {
@@ -40,27 +39,9 @@ export default function Composer({ onSend, sending }) {
     }
   };
 
-  const onChip = (chip) => {
-    // Send the chip immediately, then return focus to the box.
-    submit(chip);
-  };
-
   return (
     <div className="composer">
       <div className="composer__inner">
-        <div className="composer__chips">
-          {CHIPS.map((c) => (
-            <button
-              key={c}
-              className="chip"
-              disabled={sending}
-              onClick={() => onChip(c)}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-
         <div className="composer__box">
           <span className="composer__icon" aria-hidden="true">
             <PaperclipIcon />

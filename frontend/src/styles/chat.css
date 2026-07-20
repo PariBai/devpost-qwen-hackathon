@@ -752,7 +752,7 @@
 }
 
 .recall__label {
-  font-size: 11.5px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--muted);
 }
@@ -764,12 +764,12 @@
 }
 
 .recall__pill {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--accent-dark);
   background: var(--accent-tint);
   border-radius: 20px;
-  padding: 2px 9px;
+  padding: 3px 10px;
   font-family: var(--font-mono);
 }
 

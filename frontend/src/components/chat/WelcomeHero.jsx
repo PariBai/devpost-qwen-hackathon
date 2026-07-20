@@ -3,10 +3,8 @@
 import { StarIcon } from "../icons";
 
 const STARTERS = [
-  { icon: "📈", text: "Top gainers on the PSX today" },
   { icon: "🏦", text: "Compare HBL vs MCB" },
   { icon: "💰", text: "Best dividend yields in KSE-100" },
-  { icon: "🌍", text: "How does USD/PKR affect exporters?" },
 ];
 
 export default function WelcomeHero({ onStarter }) {
