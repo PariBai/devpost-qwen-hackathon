@@ -18,7 +18,7 @@ from backend.db import get_pool
 from backend.security import get_current_user
 from backend.schemas import MessageRequest, RenameRequest
 
-from app.common.utils import _get_model
+from app.common.utils import get_active_qwen_model
 from app.common.context import SessionContext
 from app.common.store import get_store
 from app.common import memory as memory_utils
@@ -210,7 +210,7 @@ async def send_message(
             context = SessionContext(
                 thread_id=chat_id,        # chat_id == thread_id -> per-chat agent context
                 user_id=user_id,          # stable cross-session memory key
-                model=_get_model("qwen"),
+                model=get_active_qwen_model(),
                 agents=None,
                 qid=qid,                  # for make_graph chart file names
                 images=[],                # fresh per turn: last turn's charts never leak in

@@ -91,14 +91,46 @@ def qwen_model_chain(temp: Optional[float] = None, max_tokens: Optional[int] = N
 
 def is_quota_error(exc: Exception) -> bool:
     """True when an exception looks like a quota / rate-limit / throttling error from
-    DashScope (HTTP 429 or a quota-exhausted message) — the only case we fail over on.
+    DashScope (HTTP 429/403 or a quota-exhausted message) — the only case we fail over on.
     Any other error re-raises unchanged, so behavior on real bugs is identical to before."""
     s = f"{getattr(exc, 'status_code', '')} {exc}".lower()
     keywords = (
-        "429", "quota", "rate limit", "ratelimit", "throttl",
-        "insufficient", "allocated", "arrearage", "requests rate",
+        "429", "quota", "rate limit", "ratelimit", "throttl", "freetieronly",
+        "free quota", "insufficient", "allocated", "allocation", "arrearage",
+        "requests rate", "exhausted",
     )
     return any(k in s for k in keywords)
+
+
+# --- Sticky quota fail-over -------------------------------------------------
+# Index into qwen_model_names() of the model currently used as primary. When a model is
+# found to be quota-exhausted we advance this pointer so EVERY later request skips the
+# dead model and goes straight to the next working one — the switch "sticks" for the life
+# of the process. Starts at 0 (= the configured QWEN_MODEL).
+_active_model_idx = 0
+
+
+def get_active_qwen_model(temp: Optional[float] = None, max_tokens: Optional[int] = None):
+    """The Qwen model currently serving as primary (the configured one, or a fallback that
+    was promoted after an earlier quota error)."""
+    names = qwen_model_names()
+    idx = min(_active_model_idx, len(names) - 1)
+    return build_qwen_model(names[idx], temp, max_tokens)
+
+
+def advance_qwen_model() -> bool:
+    """Promote the next model in QWEN_FALLBACK_MODELS to primary after a quota error.
+    Returns True if there was a next model to promote (caller should retry), or False if
+    we are already on the last model in the list (nothing left to fail over to)."""
+    global _active_model_idx
+    names = qwen_model_names()
+    if _active_model_idx + 1 < len(names):
+        _active_model_idx += 1
+        print(f"[qwen] quota exhausted -> promoting fallback model "
+              f"'{names[_active_model_idx]}' as the new primary")
+        return True
+    print("[qwen] quota exhausted and no further fallback models are configured")
+    return False
 
 
 def _coerce_to_schema(raw, schema):
@@ -175,19 +207,12 @@ def _invoke_structured(llm, schema, messages):
     back into `schema` via _coerce_to_schema. Returns a schema instance or None (callers
     already treat None as "no result" and fall back safely).
     """
-    # Try the passed-in (primary) model first, then any Qwen fallbacks — but ONLY fail
-    # over on a quota/rate-limit error. With QWEN_FALLBACK_MODELS unset the chain is just
-    # [primary], so this behaves exactly as before.
-    models = [llm]
-    try:
-        for m in qwen_model_chain():
-            if m is not llm:
-                models.append(m)
-    except Exception:
-        pass
-
+    # Use the currently-active Qwen model. On a quota error, permanently promote the next
+    # fallback model and retry; keep going until one works or the list is exhausted. With
+    # QWEN_FALLBACK_MODELS unset there is nothing to promote, so this behaves as before.
     last_err = None
-    for mi, model in enumerate(models):
+    while True:
+        model = get_active_qwen_model()
         quota_hit = False
         for method in ("function_calling", "json_mode"):
             msgs = messages
@@ -220,10 +245,9 @@ def _invoke_structured(llm, schema, messages):
                     quota_hit = True
                     break  # don't try the other method on a quota'd model
                 continue
-        if quota_hit and mi + 1 < len(models):
-            print(f"[_llm_call] quota hit on Qwen model #{mi}; failing over to next model")
-            continue
-        # Non-quota failure (or last model) -> stop; matches prior behavior.
+        if quota_hit and advance_qwen_model():
+            continue  # retry the whole call on the promoted model
+        # Non-quota failure, or no fallback left -> stop; matches prior behavior.
         break
     if last_err is not None:
         print(f"[_llm_call] structured output unrecoverable for "

@@ -7,7 +7,13 @@ from langchain_core.messages import AIMessage, SystemMessage, HumanMessage, Tool
 from app.common import state
 from app.common.state import SessionState
 from app.common.context import SessionContext
-from app.common.utils import trim_messages, _llm_call, qwen_model_chain, is_quota_error
+from app.common.utils import (
+    trim_messages,
+    _llm_call,
+    is_quota_error,
+    get_active_qwen_model,
+    advance_qwen_model,
+)
 from app.common.schemas import RouteDecision, PreferenceUpdate
 from app.prompts.router import ROUTER_SYSTEM_PROMPT, ROUTER_USER_TEMPLATE
 from app.prompts.synthesize import SYNTHESIZE_SYSTEM_PROMPT, SYNTHESIZE_USER_TEMPLATE
@@ -153,14 +159,13 @@ async def compliance_node(state: SessionState, runtime: Runtime[SessionContext])
 
     agent = await get_compliance_agent()
 
-    # Stream the agent; if the primary Qwen model hits a quota/rate-limit error BEFORE any
-    # text has streamed, fail over to the next model (QWEN_FALLBACK_MODELS) and retry. With
-    # no fallbacks configured this loop runs once and re-raises exactly as before.
-    models = qwen_model_chain()
+    # Stream the agent on the currently-active Qwen model. If it hits a quota error BEFORE
+    # any text has streamed, permanently promote the next fallback model and retry. With no
+    # fallbacks left this re-raises exactly as before.
     full_content = ""
     agent_messages = []
-    for mi, model in enumerate(models):
-        runtime.context.model = model
+    while True:
+        runtime.context.model = get_active_qwen_model()
         full_content = ""
         agent_messages = []
         try:
@@ -186,8 +191,7 @@ async def compliance_node(state: SessionState, runtime: Runtime[SessionContext])
                                     agent_messages.append(msg)
             break
         except Exception as e:
-            if is_quota_error(e) and not full_content and mi + 1 < len(models):
-                print(f"[compliance_node] quota on Qwen model #{mi}; failing over to next model")
+            if is_quota_error(e) and not full_content and advance_qwen_model():
                 continue
             raise
 
@@ -216,14 +220,13 @@ async def finance_node(state: SessionState, runtime: Runtime[SessionContext]) ->
     finance_input_messages = filter_agent_messages(state["messages"], BLOCKED_TOOLS)
     agent = await get_finance_agent()
 
-    # Stream the agent; if the primary Qwen model hits a quota/rate-limit error BEFORE any
-    # text has streamed, fail over to the next model (QWEN_FALLBACK_MODELS) and retry. With
-    # no fallbacks configured this loop runs once and re-raises exactly as before.
-    models = qwen_model_chain()
+    # Stream the agent on the currently-active Qwen model. If it hits a quota error BEFORE
+    # any text has streamed, permanently promote the next fallback model and retry. With no
+    # fallbacks left this re-raises exactly as before.
     full_content = ""
     agent_messages = []
-    for mi, model in enumerate(models):
-        runtime.context.model = model
+    while True:
+        runtime.context.model = get_active_qwen_model()
         full_content = ""
         agent_messages = []
         try:
@@ -249,8 +252,7 @@ async def finance_node(state: SessionState, runtime: Runtime[SessionContext]) ->
                                     agent_messages.append(msg)
             break
         except Exception as e:
-            if is_quota_error(e) and not full_content and mi + 1 < len(models):
-                print(f"[finance_node] quota on Qwen model #{mi}; failing over to next model")
+            if is_quota_error(e) and not full_content and advance_qwen_model():
                 continue
             raise
 
