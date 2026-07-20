@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Optional, Dict, Any, List
 # NOTE: `model` is injected at runtime (see app/common/utils.py::_get_model) and
-# read by the dynamic_model middleware in each agent. It is typed as Any so this
-# module stays provider-agnostic -- we will swap Gemini -> Qwen/DashScope later
-# without touching the context schema.
+# read by the dynamic_model middleware in each agent. It is a Qwen chat model on the
+# Alibaba Cloud DashScope endpoint; typed as Any so the context schema stays
+# provider-agnostic.
 
 
 @dataclass

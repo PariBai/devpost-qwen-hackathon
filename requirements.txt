@@ -28,7 +28,6 @@ rapidfuzz==3.14.5
 langchain==1.3.11
 langchain-core==1.4.8
 langchain-openai==1.3.3            # Qwen via Alibaba Cloud DashScope (OpenAI-compatible endpoint)
-langchain-google-genai==4.2.6     # legacy Gemini branch
 langgraph==1.2.7
 langgraph-checkpoint==4.1.1
 langgraph-checkpoint-postgres==3.1.0

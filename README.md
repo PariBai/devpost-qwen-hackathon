@@ -24,35 +24,53 @@ it recommends, not just how it talks.
 
 ## Memory design
 
-The project separates memory into three layers so that each has a clear owner and lifetime.
+This is the heart of the project. Memory is separated into three layers, each with a clear owner
+and lifetime, so that short-lived conversation context and durable cross-session knowledge never
+get tangled together.
 
 | Layer | Contents | Key | Lifetime |
 |-------|----------|-----|----------|
 | Chat history | The Q&A shown in the UI | `chat_id + qid` | Removed when the chat is deleted |
-| Per-thread context | The agent's working state for one conversation | `thread_id` (= `chat_id`) | Purged with the chat |
-| Long-term memory | Durable user preferences only | `user_id` | Survives new chats and logout |
+| Per-session working memory | The agent's working state for one conversation (LangGraph checkpointer) | `thread_id` (= `chat_id`) | Trimmed as the chat grows; purged when the chat is deleted |
+| Long-term memory | Durable user preferences only | `user_id` | Survives new chats, logout, and new sessions |
 
-The long-term layer is what makes this a MemoryAgent: it is keyed to the user, not the
-conversation, so it persists across sessions.
+The long-term layer is what makes this a MemoryAgent: it is keyed to the **user**, not the
+conversation, so what it learns about you persists across sessions and shapes future answers.
 
-**Writing memory.** The agent does not save things while it answers. After each turn, a separate
-reflection step ([`memory_writer_node`](app/graph/nodes.py#L307)) looks at the finished turn and
-produces a short list of upsert/delete operations over a fixed set of preference keys
-(`language`, `risk_tolerance`, `investment_horizon`, `preferred_sectors`, `focus_tickers`,
-`reporting_currency`, `detail_level`, `shariah_only`). On an ordinary question it writes nothing.
-Because this runs after the answer has streamed, it adds no delay to the response.
+Three mechanisms keep that memory efficient and correct — remembering, recalling, and forgetting.
 
-**Forgetting.** When a user revokes or contradicts a preference — "forget the Shariah filter",
-"any sector is fine now" — the reflection step emits a delete and the preference is removed
-([`app/common/memory.py`](app/common/memory.py#L79)). Deleting a chat also clears its per-thread
-checkpoint history.
+### Remembering (write path)
+The agent never decides to save things while it is answering. After each turn, a separate
+reflection step ([`memory_writer_node`](app/graph/nodes.py#L307)) reviews the finished turn and
+emits a short list of upsert/delete operations over a fixed set of preference keys — `language`,
+`risk_tolerance`, `investment_horizon`, `preferred_sectors`, `focus_tickers`, `reporting_currency`,
+`detail_level`, `shariah_only`. On an ordinary question it saves nothing, which keeps memory clean
+and precise. Because this step runs *after* the answer has streamed, it adds no latency to the
+response the user sees.
 
-**Recall within a limited context.** Rather than pushing every stored preference into every
-prompt, each turn selects only what is relevant ([`app/common/retrieval.py`](app/common/retrieval.py)).
-Hard constraints such as language and the Shariah filter are always applied; the rest are ranked
-by semantic similarity to the current question using Qwen/DashScope embeddings, and only the top
-few are injected. This keeps the prompt small as memory grows, and falls back to injecting
-everything if embeddings are unavailable.
+### Recalling within a limited context window
+Rather than pushing every stored preference into every prompt, each turn selects only what is
+relevant ([`app/common/retrieval.py`](app/common/retrieval.py)). Hard constraints such as language
+and the Shariah filter are always applied; everything else is ranked by semantic similarity to the
+current question using Qwen/DashScope embeddings, and only the top few are injected. This keeps the
+prompt small and focused even as a user's memory grows to hundreds of entries, and it degrades
+gracefully — if embeddings are unavailable it falls back to including everything rather than
+failing. The UI surfaces this as a "recalled N of M memories" indicator with the similarity scores.
+
+### Forgetting — at two timescales
+Forgetting is deliberate, not incidental, and happens on two levels:
+
+- **Within a session (short-term):** conversation context is a bounded sliding window. Once a chat
+  grows past several exchanges, the oldest turns are trimmed from the working context
+  ([`trim_messages`](app/common/utils.py#L226)), so the model always reasons over the recent,
+  relevant part of the conversation instead of an ever-growing transcript. Anything durable from
+  those older turns has already been lifted into long-term preference memory, so it is not lost.
+- **Across sessions (long-term), and user-controlled:** when a user revokes or contradicts a
+  preference — "forget the Shariah filter", "any sector is fine now" — the reflection step deletes
+  it from long-term memory ([`app/common/memory.py`](app/common/memory.py#L79)). The user is also
+  in full control directly: deleting a chat purges that conversation's history and its per-thread
+  checkpoint, and stored preferences can be removed so the agent stops applying them. Memory is
+  something the user can inspect and clear, not a black box.
 
 ## Features worth noting
 
@@ -137,12 +155,18 @@ Create a `.env` file:
 DASHSCOPE_API_KEY=sk-...
 DASHSCOPE_BASE_URL=https://dashscope-intl.aliyuncs.com/compatible-mode/v1
 QWEN_MODEL=qwen-flash
+QWEN_FALLBACK_MODELS=qwen-plus,qwen-turbo   # optional: auto fail-over if the primary model is rate-limited
 EMBED_MODEL=text-embedding-v3
 POSTGRES_USER=psx_admin
 POSTGRES_PASSWORD=psx_admin
 POSTGRES_DB=psxmemory
 JWT_SECRET=<random-hex>
 ```
+
+If a request to the primary Qwen model is rejected for quota or rate-limit reasons, the agent
+automatically retries on the next model listed in `QWEN_FALLBACK_MODELS` before returning an
+error, so a demo does not stall if one model is throttled. Leaving the variable unset simply
+disables fail-over.
 
 Then:
 

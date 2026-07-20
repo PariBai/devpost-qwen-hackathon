@@ -9,79 +9,96 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from functools import lru_cache
 from langchain.messages import RemoveMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage, ToolMessage
 from langchain_core.prompts import PromptTemplate
 from typing import List, Set
 load_dotenv()
 
 
-# TODO(qwen): add a 'qwen' branch here (DashScope OpenAI-compatible endpoint)
-# and switch the default provider. Keeping the Gemini branch for now so the
-# existing pipeline keeps working until we wire Qwen credentials.
-@lru_cache(maxsize = 1)
+@lru_cache(maxsize=8)
+def build_qwen_model(
+    model_name: str,
+    temp: Optional[float] = None,
+    max_tokens: Optional[int] = None,
+):
+    """Build a single Qwen chat model on the Alibaba Cloud DashScope OpenAI-compatible
+    endpoint. Cached per (model_name, temp, max_tokens) so repeated calls are cheap and
+    so the fallback chain can build each model by name."""
+    # Lazy import so the module doesn't hard-require langchain-openai unless used.
+    from langchain_openai import ChatOpenAI
+
+    kwargs = {
+        "api_key": os.getenv("DASHSCOPE_API_KEY"),
+        "base_url": os.getenv(
+            "DASHSCOPE_BASE_URL",
+            "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+        ),
+        "model": model_name,
+        "temperature": 0,
+        "max_retries": 2,
+        "timeout": None,
+    }
+    if temp is not None:
+        kwargs["temperature"] = temp
+    if max_tokens is not None:
+        kwargs["max_tokens"] = max_tokens
+
+    # Qwen3 "deep thinking" models (qwen3*, qwen3.x-plus/max, qwq) reason before
+    # answering by default -> slow + costly. Disable it unless ENABLE_THINKING is
+    # set. Only send `enable_thinking` to models that accept it, so switching back
+    # to a non-thinking model (qwen2.5-*, qwen-plus, ...) doesn't error out.
+    low = model_name.lower()
+    is_thinking_model = ("qwen3" in low) or low.startswith("qwq")
+    if is_thinking_model:
+        enable = os.getenv("ENABLE_THINKING", "false").lower() in ("1", "true", "yes")
+        kwargs["extra_body"] = {"enable_thinking": enable}
+
+    return ChatOpenAI(**kwargs)
+
+
+@lru_cache(maxsize=1)
 def _get_model(
     name: str,
     temp: Optional[float] = None,
-    max_tokens: Optional[int] = None
+    max_tokens: Optional[int] = None,
 ):
-    if name == 'google':
-        kwargs = {
-            "api_key": os.getenv("GEMINI_API_KEY"),
-            "model": "gemini-3-flash-preview",
-            "max_retries": 2,
-            "temperature": 1.0,
-            "max_tokens": None,
-            "timeout": None,
-            "thinking_level": "low",
-            "include_thoughts": False
-        }
-        if temp is not None:
-            kwargs["temperature"] = temp
-        if max_tokens is not None:
-            kwargs["max_tokens"] = max_tokens
+    """Return the PRIMARY chat model. Only Qwen (Alibaba Cloud DashScope) is supported."""
+    if name == "qwen":
+        return build_qwen_model(os.getenv("QWEN_MODEL", "qwen-plus"), temp, max_tokens)
+    raise ValueError(f"Unsupported Model Name: {name}")
 
-        model = ChatGoogleGenerativeAI(**kwargs)
 
-    elif name == 'qwen':
-        # Qwen via Alibaba Cloud DashScope (OpenAI-compatible endpoint).
-        # Lazy import so the module doesn't hard-require langchain-openai
-        # unless the Qwen provider is actually used.
-        from langchain_openai import ChatOpenAI
+def qwen_model_names() -> List[str]:
+    """Ordered model names to try: the primary QWEN_MODEL first, then any names in
+    QWEN_FALLBACK_MODELS (comma-separated). With QWEN_FALLBACK_MODELS unset this returns
+    just [primary], so the app behaves EXACTLY as before — the fallback is opt-in."""
+    names = [os.getenv("QWEN_MODEL", "qwen-plus")]
+    extra = os.getenv("QWEN_FALLBACK_MODELS", "")
+    names += [n.strip() for n in extra.split(",") if n.strip()]
+    seen: Set[str] = set()
+    ordered: List[str] = []
+    for n in names:
+        if n not in seen:
+            seen.add(n)
+            ordered.append(n)
+    return ordered
 
-        model_name = os.getenv("QWEN_MODEL", "qwen-plus")
-        kwargs = {
-            "api_key": os.getenv("DASHSCOPE_API_KEY"),
-            "base_url": os.getenv(
-                "DASHSCOPE_BASE_URL",
-                "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
-            ),
-            "model": model_name,
-            "temperature": 0,
-            "max_retries": 2,
-            "timeout": None,
-        }
-        if temp is not None:
-            kwargs["temperature"] = temp
-        if max_tokens is not None:
-            kwargs["max_tokens"] = max_tokens
 
-        # Qwen3 "deep thinking" models (qwen3*, qwen3.x-plus/max, qwq) reason before
-        # answering by default -> slow + costly. Disable it unless ENABLE_THINKING is
-        # set. Only send `enable_thinking` to models that accept it, so switching back
-        # to a non-thinking model (qwen2.5-*, qwen-plus, ...) doesn't error out.
-        low = model_name.lower()
-        is_thinking_model = ("qwen3" in low) or low.startswith("qwq")
-        if is_thinking_model:
-            enable = os.getenv("ENABLE_THINKING", "false").lower() in ("1", "true", "yes")
-            kwargs["extra_body"] = {"enable_thinking": enable}
+def qwen_model_chain(temp: Optional[float] = None, max_tokens: Optional[int] = None):
+    """The primary model followed by its fallbacks, as built model instances."""
+    return [build_qwen_model(n, temp, max_tokens) for n in qwen_model_names()]
 
-        model = ChatOpenAI(**kwargs)
 
-    else:
-        raise ValueError(f"Unsupported Model Name: {name}")
-
-    return model
+def is_quota_error(exc: Exception) -> bool:
+    """True when an exception looks like a quota / rate-limit / throttling error from
+    DashScope (HTTP 429 or a quota-exhausted message) — the only case we fail over on.
+    Any other error re-raises unchanged, so behavior on real bugs is identical to before."""
+    s = f"{getattr(exc, 'status_code', '')} {exc}".lower()
+    keywords = (
+        "429", "quota", "rate limit", "ratelimit", "throttl",
+        "insufficient", "allocated", "arrearage", "requests rate",
+    )
+    return any(k in s for k in keywords)
 
 
 def _coerce_to_schema(raw, schema):
@@ -158,35 +175,56 @@ def _invoke_structured(llm, schema, messages):
     back into `schema` via _coerce_to_schema. Returns a schema instance or None (callers
     already treat None as "no result" and fall back safely).
     """
+    # Try the passed-in (primary) model first, then any Qwen fallbacks — but ONLY fail
+    # over on a quota/rate-limit error. With QWEN_FALLBACK_MODELS unset the chain is just
+    # [primary], so this behaves exactly as before.
+    models = [llm]
+    try:
+        for m in qwen_model_chain():
+            if m is not llm:
+                models.append(m)
+    except Exception:
+        pass
+
     last_err = None
-    for method in ("function_calling", "json_mode"):
-        msgs = messages
-        if method == "json_mode":
-            # DashScope requires the literal word 'json' somewhere in the prompt to use
-            # json_object response_format — inject it into the system message.
-            sys0 = messages[0]
-            patched = SystemMessage(
-                content=f"{sys0.content}\n\nRespond with a single valid json object only."
-            )
-            msgs = [patched] + list(messages[1:])
-        try:
-            structured = llm.with_structured_output(
-                schema, method=method, include_raw=True
-            )
-            result = structured.invoke(msgs)
-            parsed = result.get("parsed") if isinstance(result, dict) else result
-            if parsed is None:
-                raw = result.get("raw") if isinstance(result, dict) else None
-                parsed = _coerce_to_schema(raw, schema)
+    for mi, model in enumerate(models):
+        quota_hit = False
+        for method in ("function_calling", "json_mode"):
+            msgs = messages
+            if method == "json_mode":
+                # DashScope requires the literal word 'json' somewhere in the prompt to use
+                # json_object response_format — inject it into the system message.
+                sys0 = messages[0]
+                patched = SystemMessage(
+                    content=f"{sys0.content}\n\nRespond with a single valid json object only."
+                )
+                msgs = [patched] + list(messages[1:])
+            try:
+                structured = model.with_structured_output(
+                    schema, method=method, include_raw=True
+                )
+                result = structured.invoke(msgs)
+                parsed = result.get("parsed") if isinstance(result, dict) else result
+                if parsed is None:
+                    raw = result.get("raw") if isinstance(result, dict) else None
+                    parsed = _coerce_to_schema(raw, schema)
+                    if parsed is not None:
+                        print(f"[_llm_call] recovered mis-shaped output for "
+                              f"{getattr(schema, '__name__', schema)} (method={method})")
                 if parsed is not None:
-                    print(f"[_llm_call] recovered mis-shaped output for "
-                          f"{getattr(schema, '__name__', schema)} (method={method})")
-            if parsed is not None:
-                return parsed
-        except Exception as e:
-            last_err = e
-            print(f"[_llm_call] structured method={method} failed: {e}")
+                    return parsed
+            except Exception as e:
+                last_err = e
+                print(f"[_llm_call] structured method={method} failed: {e}")
+                if is_quota_error(e):
+                    quota_hit = True
+                    break  # don't try the other method on a quota'd model
+                continue
+        if quota_hit and mi + 1 < len(models):
+            print(f"[_llm_call] quota hit on Qwen model #{mi}; failing over to next model")
             continue
+        # Non-quota failure (or last model) -> stop; matches prior behavior.
+        break
     if last_err is not None:
         print(f"[_llm_call] structured output unrecoverable for "
               f"{getattr(schema, '__name__', schema)}: {last_err}")

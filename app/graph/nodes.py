@@ -7,7 +7,7 @@ from langchain_core.messages import AIMessage, SystemMessage, HumanMessage, Tool
 from app.common import state
 from app.common.state import SessionState
 from app.common.context import SessionContext
-from app.common.utils import trim_messages, _llm_call
+from app.common.utils import trim_messages, _llm_call, qwen_model_chain, is_quota_error
 from app.common.schemas import RouteDecision, PreferenceUpdate
 from app.prompts.router import ROUTER_SYSTEM_PROMPT, ROUTER_USER_TEMPLATE
 from app.prompts.synthesize import SYNTHESIZE_SYSTEM_PROMPT, SYNTHESIZE_USER_TEMPLATE
@@ -142,7 +142,6 @@ async def compliance_node(state: SessionState, runtime: Runtime[SessionContext])
     """Run the PSX compliance agent (SQL over psx.db). Streams its text as 'compliance_chunk'
     and stores the full answer on the context for the synthesize node."""
     writer = get_stream_writer()
-    full_content = ""
     BLOCKED_TOOLS = {
     "list_financials",
     "read_financials",
@@ -151,38 +150,47 @@ async def compliance_node(state: SessionState, runtime: Runtime[SessionContext])
     }
 
     compliance_input_messages = filter_agent_messages(state["messages"], BLOCKED_TOOLS)
-    # compliance_input_messages = state["messages"]
 
     agent = await get_compliance_agent()
+
+    # Stream the agent; if the primary Qwen model hits a quota/rate-limit error BEFORE any
+    # text has streamed, fail over to the next model (QWEN_FALLBACK_MODELS) and retry. With
+    # no fallbacks configured this loop runs once and re-raises exactly as before.
+    models = qwen_model_chain()
+    full_content = ""
     agent_messages = []
-    # callback = UsageMetadataCallbackHandler()
-    # print("compliance input messages", compliance_input_messages)
-    async for stream_mode, chunk in agent.astream(
-        {"messages": compliance_input_messages},
-        stream_mode = ["updates","messages"],
-        context = runtime.context
-        # config={"callbacks": [callback]}
-    ):
-        if stream_mode == "messages":
-            message_chunk, metadata = chunk
-            if message_chunk.content and metadata.get('langgraph_node') == 'model':
-                text = _extract_text(message_chunk.content)
-                writer({"compliance_chunk": text})
-                full_content += text
-                
-        if stream_mode == "updates":
-           
-            for key in ["model", "tools"]:
-                if key in chunk and chunk[key].get("messages"):
-                    for msg in chunk[key]["messages"]:
-                        # Determine message type
-                        if key == "model" and isinstance(msg, AIMessage):
-                            agent_messages.append(msg)
-                        elif key == "tools" and isinstance(msg, ToolMessage):
-                            # ToolMessage
-                            agent_messages.append(msg)
-    
-   
+    for mi, model in enumerate(models):
+        runtime.context.model = model
+        full_content = ""
+        agent_messages = []
+        try:
+            async for stream_mode, chunk in agent.astream(
+                {"messages": compliance_input_messages},
+                stream_mode = ["updates","messages"],
+                context = runtime.context
+            ):
+                if stream_mode == "messages":
+                    message_chunk, metadata = chunk
+                    if message_chunk.content and metadata.get('langgraph_node') == 'model':
+                        text = _extract_text(message_chunk.content)
+                        writer({"compliance_chunk": text})
+                        full_content += text
+
+                if stream_mode == "updates":
+                    for key in ["model", "tools"]:
+                        if key in chunk and chunk[key].get("messages"):
+                            for msg in chunk[key]["messages"]:
+                                if key == "model" and isinstance(msg, AIMessage):
+                                    agent_messages.append(msg)
+                                elif key == "tools" and isinstance(msg, ToolMessage):
+                                    agent_messages.append(msg)
+            break
+        except Exception as e:
+            if is_quota_error(e) and not full_content and mi + 1 < len(models):
+                print(f"[compliance_node] quota on Qwen model #{mi}; failing over to next model")
+                continue
+            raise
+
     runtime.context.compliance_output = full_content             # only THIS node writes this field
     # print("agent messagwes inside compliance_node", agent_messages)
     # If this is the ONLY agent, skip synthesize (nothing to merge) and go straight to
@@ -201,41 +209,50 @@ async def finance_node(state: SessionState, runtime: Runtime[SessionContext]) ->
     """Run the PSX finance agent (markdown financial summaries). Streams its text as
     'finance_chunk' and stores the full answer on the context for the synthesize node."""
     writer = get_stream_writer()
-    full_content = ""
     BLOCKED_TOOLS = {
    "run_sql"
     }
 
     finance_input_messages = filter_agent_messages(state["messages"], BLOCKED_TOOLS)
-    #   finance_input_messages = state["messages"]
     agent = await get_finance_agent()
+
+    # Stream the agent; if the primary Qwen model hits a quota/rate-limit error BEFORE any
+    # text has streamed, fail over to the next model (QWEN_FALLBACK_MODELS) and retry. With
+    # no fallbacks configured this loop runs once and re-raises exactly as before.
+    models = qwen_model_chain()
+    full_content = ""
     agent_messages = []
-    # callback = UsageMetadataCallbackHandler()
-   # print("finance input messages", finance_input_messages)
-    async for stream_mode, chunk in agent.astream(
-        {"messages": finance_input_messages},
-        stream_mode = ["updates","messages"],
-        context = runtime.context
-        # config={"callbacks": [callback]}
-    ):
-        if stream_mode == "messages":
-            message_chunk, metadata = chunk
-            if message_chunk.content and metadata.get('langgraph_node') == 'model':
-                text = _extract_text(message_chunk.content)
-                writer({"finance_chunk": text})
-                full_content += text
-                
-        if stream_mode == "updates":
-           
-            for key in ["model", "tools"]:
-                if key in chunk and chunk[key].get("messages"):
-                    for msg in chunk[key]["messages"]:
-                        # Determine message type
-                        if key == "model" and isinstance(msg, AIMessage):
-                            agent_messages.append(msg)
-                        elif key == "tools" and isinstance(msg, ToolMessage):
-                            # ToolMessage
-                            agent_messages.append(msg)
+    for mi, model in enumerate(models):
+        runtime.context.model = model
+        full_content = ""
+        agent_messages = []
+        try:
+            async for stream_mode, chunk in agent.astream(
+                {"messages": finance_input_messages},
+                stream_mode = ["updates","messages"],
+                context = runtime.context
+            ):
+                if stream_mode == "messages":
+                    message_chunk, metadata = chunk
+                    if message_chunk.content and metadata.get('langgraph_node') == 'model':
+                        text = _extract_text(message_chunk.content)
+                        writer({"finance_chunk": text})
+                        full_content += text
+
+                if stream_mode == "updates":
+                    for key in ["model", "tools"]:
+                        if key in chunk and chunk[key].get("messages"):
+                            for msg in chunk[key]["messages"]:
+                                if key == "model" and isinstance(msg, AIMessage):
+                                    agent_messages.append(msg)
+                                elif key == "tools" and isinstance(msg, ToolMessage):
+                                    agent_messages.append(msg)
+            break
+        except Exception as e:
+            if is_quota_error(e) and not full_content and mi + 1 < len(models):
+                print(f"[finance_node] quota on Qwen model #{mi}; failing over to next model")
+                continue
+            raise
 
     runtime.context.finance_output = full_content            # only THIS node writes this field
     # print("agent messagwes inside finance_node", agent_messages)
